@@ -14,7 +14,7 @@ class UserManager{
   }
 
   async registerUser(userId, affiliation, role, adminId){
-    const gateway;
+    let gateway;
     try{
       // Create a new file system based wallet for managing identities.
       const wallet = new FileSystemWallet(this.walletDirPath);
@@ -53,7 +53,7 @@ class UserManager{
   }
 
   async enrollUser(userId, userSecret, adminId, mspId){
-    const gateway;
+    let gateway;
     try{
       // Create a new gateway for connecting to our peer node.
       gateway = new Gateway();
