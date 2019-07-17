@@ -1,8 +1,4 @@
 {
-  "fabricSample": {
-    "homePath": "~/testing/fabric-samples",
-    "networkDirPath": "first-network",
-    "connectionFilePath": "basic-network/connection.json"
-  },
+  "connectionConfigFilePath": "/home/osboxes/testing/fabric-samples/basic-network/connection.json",
   "walletDirPath": "../../wallet"
 }
