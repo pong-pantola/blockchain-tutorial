@@ -12,7 +12,7 @@ async function main(){
     await userMgr.enrollAdmin("admin", "adminpw", "ca.example.com", "Org1MSP");
     console.log("Administrator admin enrolled successfully.")
   }catch(error){
-    console.log("Error: " + error)
+    console.log(error)
   }
 }
 

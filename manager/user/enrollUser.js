@@ -6,17 +6,22 @@ const config = require("./config/config.json")
 
 let userMgr = new UserManager(config);
 
-async function main(){
+async enroll(userId, affiliation, role){
   try{
-    console.log("Registering User user1...")
-    let userSecret = await userMgr.registerUser("user1", "org1.department1", "client", "admin");
-    console.log("User user1 registered successfully.")
-    console.log("Enrolling User user1...")
-    enrollUser("user1", userSecret, "admin", "Org1MSP");
-    console.log("User user1 enrolled successfully.")
+    console.log("Registering User "+userId+"...")
+    let userSecret = await userMgr.registerUser(userId, affiliation, role, "admin");
+    console.log("User "+userId+" registered successfully.")
+    console.log("Enrolling User "+userId+"...")
+    await userMgr.enrollUser(userId, userSecret, "admin", "Org1MSP");
+    console.log("User "+userId+" enrolled successfully.")
   }catch(error){
-    console.log("Error: " + error)
+    console.log(error)
   }
+}
+
+async function main(){
+  await enroll("user1", "org1.department1", "client")
+  await enroll("user2", "org1.department1", "client")
 }
 
 main();
