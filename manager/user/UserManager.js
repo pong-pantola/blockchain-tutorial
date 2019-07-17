@@ -55,6 +55,9 @@ class UserManager{
   async enrollUser(userId, userSecret, adminId, mspId){
     let gateway;
     try{
+      // Create a new file system based wallet for managing identities.
+      const wallet = new FileSystemWallet(this.walletDirPath);
+
       // Create a new gateway for connecting to our peer node.
       gateway = new Gateway();
 
@@ -66,9 +69,6 @@ class UserManager{
       const enrollment = await ca.enroll({ enrollmentID: userId, enrollmentSecret: userSecret });
 
       const userIdentity = X509WalletMixin.createIdentity(mspId, enrollment.certificate, enrollment.key.toBytes());
-
-      // Create a new file system based wallet for managing identities.
-      const wallet = new FileSystemWallet(this.walletDirPath);
 
       await wallet.import(userId, userIdentity);
     }catch(error){
