@@ -12,7 +12,7 @@ async function main(){
     let userSecret = await userMgr.registerUser("user1", "org1.department1", "client", "admin");
     console.log("User user1 registered successfully.")
     console.log("Enrolling User user1...")
-    enrollUser(userId, userSecret, "Org1MSP");
+    enrollUser("user1", userSecret, "admin", "Org1MSP");
     console.log("User user1 enrolled successfully.")
   }catch(error){
     console.log("Error: " + error)
