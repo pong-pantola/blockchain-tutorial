@@ -34,3 +34,4 @@ class BlueCoinContract extends Contract {
 }
 
 module.exports = BlueCoinContract;
+                 

@@ -6,7 +6,7 @@ const config = require("./config/config.json")
 
 let userMgr = new UserManager(config);
 
-async enroll(userId, affiliation, role){
+async function enroll(userId, affiliation, role){
   try{
     console.log("Registering User "+userId+"...")
     let userSecret = await userMgr.registerUser(userId, affiliation, role, "admin");
