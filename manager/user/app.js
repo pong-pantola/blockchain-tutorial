@@ -29,3 +29,5 @@ async function main(){
     console.log("Error: " + error)
   }
 }
+
+main();

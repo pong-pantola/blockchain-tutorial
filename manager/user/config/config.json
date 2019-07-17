@@ -1,5 +1,8 @@
 {
-  "networkDirPath": "../../network/first-network",
-  "connectionFilePath": "../../network/first-network/connection-org1.json",
+  "fabricSample": {
+    "homePath": "~/testing/fabric-samples",
+    "networkDirPath": "network/first-network",
+    "connectionFilePath": "network/first-network/connection-org1.json"
+  },
   "walletDirPath": "../../wallet"
 }

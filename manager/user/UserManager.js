@@ -11,9 +11,11 @@ const path = require('path');
 
 class UserManager{
   constructor(config){
-    this.config = config;
+    this.networkDirPath = path.join(config.homePath, config.networkDirPath);
+    this.connectionFilePath = path.join(config.homePath, config.connectionFilePath);
+    this.walletDirPath = config.walletDirPath;
 
-    this.connectionConfig = require(this.config.connectionFilePath);
+    this.connectionConfig = require(this.connectionFilePath);
   }
 
   async registerUser(userId, affiliation, role, adminId){
@@ -21,7 +23,7 @@ class UserManager{
     //const walletPath = path.join(process.cwd(), 'wallet');
     //const wallet = new FileSystemWallet(walletPath);
     //console.log(`Wallet path: ${walletPath}`);
-    const wallet = new FileSystemWallet(this.config.walletDirPath);
+    const wallet = new FileSystemWallet(this.walletDirPath);
 
     // Check to see if we've already enrolled the user.
     const userExists = await wallet.exists(userId);
@@ -44,7 +46,7 @@ class UserManager{
     const gateway = new Gateway();
 
     //await gateway.connect(ccpPath, { wallet, identity: 'admin', discovery: { enabled: true, asLocalhost: true } });
-    await gateway.connect(this.config.connectionFilePath, { wallet, identity: adminId, discovery: { enabled: true, asLocalhost: true } });
+    await gateway.connect(this.connectionFilePath, { wallet, identity: adminId, discovery: { enabled: true, asLocalhost: true } });
 
     // Get the CA client object from the gateway for interacting with the CA.
     const ca = gateway.getClient().getCertificateAuthority();
@@ -76,7 +78,7 @@ class UserManager{
     const caInfo = this.connectionConfig.certificateAuthorities[caId];
 
     //const caTLSCACertsPath = path.resolve(__dirname, '..', '..', 'first-network', caInfo.tlsCACerts.path);
-    const caTLSCACertsPath = path.resolve(this.config.networkDirPath, caInfo.tlsCACerts.path);
+    const caTLSCACertsPath = path.resolve(this.networkDirPath, caInfo.tlsCACerts.path);
     const caTLSCACerts = fs.readFileSync(caTLSCACertsPath);
     const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.caName);
 
@@ -84,7 +86,7 @@ class UserManager{
     //const walletPath = path.join(process.cwd(), 'wallet');
     //const wallet = new FileSystemWallet(walletPath);
     //console.log(`Wallet path: ${walletPath}`);
-    const wallet = new FileSystemWallet(this.config.walletDirPath);
+    const wallet = new FileSystemWallet(this.walletDirPath);
 
     // Check to see if we've already enrolled the admin user.
     //const adminExists = await wallet.exists('admin');
@@ -110,6 +112,7 @@ class UserManager{
 
 
 
-
-
 }
+
+
+module.exports = UserManager;
