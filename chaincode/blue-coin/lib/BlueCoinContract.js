@@ -15,20 +15,20 @@ class BlueCoinContract extends Contract {
 
   }
 
-  async generateInitialCoin(ctx, orgId) {
+  async generateInitialCoin(ctx, userId) {
     console.info('============= START : Generate Initial Coin =============');
-    const amtAsBytes = await ctx.stub.getState(orgId);
+    const amtAsBytes = await ctx.stub.getState(userId);
 
     //check if organization has already generated blue coins before
     if (amtAsBytes != null)
-      return shim.error("Organization " + orgId + " has generated already initial blue coins before.  Organization can generate blue coins only once.")
+      return shim.error("Organization " + userId + " has generated already initial blue coins before.  Organization can generate blue coins only once.")
 
     const amt = 500;
-    await ctx.stub.putState(orgId, Buffer.from(JSON.stringify(amt)));
+    await ctx.stub.putState(userId, Buffer.from(JSON.stringify(amt)));
 
 
     console.info('============= END : Generate Initial Coin =============');
-    return shim.success("Successfully generated " + amt + " blue coins for " + orgId);
+    return shim.success("Successfully generated " + amt + " blue coins for " + userId);
   }
 
 }
