@@ -95,11 +95,9 @@ class UserManager{
     }
 
     // Enroll the admin user, and import the new identity into the wallet.
-    //const enrollment = await ca.enroll({ enrollmentID: adminId, enrollmentSecret: adminSecret });
-    //const identity = X509WalletMixin.createIdentity(mspId, enrollment.certificate, enrollment.key.toBytes());
-    //wallet.import(adminId, identity);
-
-    await this.enrollUser(adminId, adminSecret, adminId, mspId);
+    const enrollment = await ca.enroll({ enrollmentID: adminId, enrollmentSecret: adminSecret });
+    const identity = X509WalletMixin.createIdentity(mspId, enrollment.certificate, enrollment.key.toBytes());
+    wallet.import(adminId, identity);
   }
 }
 
