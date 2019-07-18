@@ -17,11 +17,11 @@ CC_RUNTIME_LANGUAGE=node # chaincode runtime language is node.js
 CC_SRC_PATH=/opt/gopath/src/github.com/fabcar
 
 #stop docker containers
-docker stop $(docker ps -aq)
-docker rm -f $(docker ps -aq)
+docker stop $(docker ps -aq) || ls
+docker rm -f $(docker ps -aq) || ls
 
 #delete all images with the name dev-peer
-docker rmi -f $(docker images | grep dev-peer | awk '{print $3}')
+docker rmi -f $(docker images | grep dev-peer | awk '{print $3}') || ls
 
 # clean the keystore
 #rm -rf ./hfc-key-store
