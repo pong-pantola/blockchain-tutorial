@@ -17,10 +17,10 @@ class BlueCoinContract extends Contract {
 
   async generateInitialCoin(ctx, userId) {
     console.info('============= START : Generate Initial Coin =============');
-    const josnAsBytes = await ctx.stub.getState(userId);
+    const jsonAsBytes = await ctx.stub.getState(userId);
 
     //check if organization has already generated blue coins before
-    if (josnAsBytes != null)
+    if (jsonAsBytes != null && jsonAsBytes.length !== 0)
       return shim.error("User " + userId + " has generated already initial blue coins before.  User can generate blue coins only once.")
 
     const json = {
@@ -36,14 +36,14 @@ class BlueCoinContract extends Contract {
 
   async getBalance(ctx, userId) {
     console.info('============= START : Get Balance =============');    
-    const josnAsBytes = await ctx.stub.getState(userId);
+    const jsonAsBytes = await ctx.stub.getState(userId);
 
-    if (josnAsBytes == null || josnAsBytes.length === 0) {
+    if (jsonAsBytes == null || jsonAsBytes.length === 0) {
       return shim.error("User " + userId + " has no coins.  Run generateInitialCoin first to get initial coins.")
     }
 
     console.info('============= END : Get Balance =============');    
-    return shim.success(josnAsBytes.toString());  
+    return shim.success(jsonAsBytes.toString());  
   }
 }
 

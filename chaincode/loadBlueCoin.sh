@@ -14,7 +14,7 @@ export MSYS_NO_PATHCONV=1
 starttime=$(date +%s)
 
 CC_RUNTIME_LANGUAGE=node # chaincode runtime language is node.js
-CC_SRC_PATH=/opt/gopath/src/github.com/fabcar
+CC_SRC_PATH=/opt/gopath/src/github.com/blue-coin
 
 #stop docker containers
 docker stop $(docker ps -aq) || ls
