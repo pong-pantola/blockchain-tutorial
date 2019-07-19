@@ -40,7 +40,7 @@ class BlueCoinContract extends Contract {
 
   async generateInitialCoin(ctx, userId) {
     console.info('============= START : Generate Initial Coin =============');
-    let json = await getState(ctx, userId);
+    let json = await this.getState(ctx, userId);
 
     //check if organization has already generated blue coins before
     if (json != null)
@@ -50,7 +50,7 @@ class BlueCoinContract extends Contract {
       amt: 500
     }
 
-    await putState(ctx, userId, json);
+    await this.putState(ctx, userId, json);
 
     console.info('============= END : Generate Initial Coin =============');
     return shim.success("Successfully generated " + json.amt + " blue coins for " + userId);
@@ -58,7 +58,7 @@ class BlueCoinContract extends Contract {
 
   async getBalance(ctx, userId) {
     console.info('============= START : Get Balance =============');    
-    const json = await getState(ctx, userId);
+    const json = await this.getState(ctx, userId);
 
     if (json != null)
       return shim.error("User " + userId + " has no coins.  Run generateInitialCoin first to get initial coins.")
