@@ -4,7 +4,7 @@
 
 'use strict';
 
-const FabCar = require('./lib/BlueCoinContract');
+const BlueCoinContract = require('./lib/BlueCoinContract');
 
 module.exports.BlueCoinContract = BlueCoinContract;
 module.exports.contracts = [ BlueCoinContract ];
