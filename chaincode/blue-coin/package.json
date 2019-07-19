@@ -9,7 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "fabric-contract-api": "~1.4.1",
-    "fabric-shim": "~1.4.0"
+    "fabric-contract-api": "~1.4.0",
+    "fabric-shim": "~1.4.0",
+    "@theledger/fabric-mock-stub": "^4.0.0"    
   }
 }
