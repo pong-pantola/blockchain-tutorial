@@ -31,7 +31,7 @@ class BlueCoinContract extends Contract {
 
 
     console.info('============= END : Generate Initial Coin =============');
-    return shim.success("Successfully generated " + amt + " blue coins for " + userId);
+    return shim.success("Successfully generated " + json.amt + " blue coins for " + userId);
   }
 
   async getBalance(ctx, userId) {
