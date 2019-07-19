@@ -31,11 +31,11 @@ class BlueCoinContract extends Contract {
 
   async getState(ctx, key){
     const bytes = await ctx.stub.getState(key);
-    return bytesToJson(bytes);
+    return this.bytesToJson(bytes);
   }
 
   async putState(ctx, key, json){
-    await ctx.stub.putState(key, jsonToBytes(json));
+    await ctx.stub.putState(key, this.jsonToBytes(json));
   }
 
   async generateInitialCoin(ctx, userId) {
