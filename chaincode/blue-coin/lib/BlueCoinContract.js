@@ -67,7 +67,7 @@ class BlueCoinContract extends Contract {
 
     console.info('============= END : Get Balance =============');    
 
-    return shim.success({"status" :"success","message":"Getting Balance successfull","result": json });
+    return shim.success({"status" :"success","message":"Getting Balance successfully","result": json });
   }  
 
   async transferCoin(ctx, srcUserId, dstUserId, amount){
@@ -83,7 +83,8 @@ class BlueCoinContract extends Contract {
     if (srcBCOINJson.amt >= amount) {
       srcBCOINJson.amt -= parseInt(amount);
       dstBCOINJson.amt += parseInt(amount);
- 
+ console.log("srcBCOINJson:"+srcBCOINJson.amt)
+ console.log("dstBCOINJson:"+dstBCOINJson.amt)
       await this.putState(ctx, srcUserId, srcBCOINJson);
       await this.putState(ctx, dstUserId, dstBCOINJson);
     }else{
