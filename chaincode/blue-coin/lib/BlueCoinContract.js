@@ -47,19 +47,14 @@ class BlueCoinContract extends Contract {
       return shim.error("User " + userId + " has generated already initial blue coins before.  User can generate blue coins only once.")
 
     json = {
+      userId: userId,
       amt: 500
     }
-
-    let result = {
-      User: userId,
-      Amount: json.amt
-  }
 
     await this.putState(ctx, userId, json);
 
     console.info('============= END : Generate Initial Coin =============');
-//    return shim.success("Successfully generated " + json.amt + " blue coins for " + userId);
-    return shim.success({"status" :"success","message":"Successfully generated blue coins","result": result });
+    return shim.success({"status" :"success","message":"Successfully generated blue coins","result": json });
   }
 
   async getBalance(ctx, userId) {
@@ -70,38 +65,33 @@ class BlueCoinContract extends Contract {
     if (json == null)
      return shim.error("User " + userId + " has no record in the system.  Run generateInitialCoin first to get initial coins.")
 
-    let result = {
-     User: userId,
-     Amount: json.amt
-    }
-
     console.info('============= END : Get Balance =============');    
-//    return shim.success(json);  
-    return shim.success({"status" :"success","message":"Getting Balance successfull","result": result });
+
+    return shim.success({"status" :"success","message":"Getting Balance successfull","result": json });
   }  
 
-  async transferCoin(ctx, sourceUserId, destUserId, amount){
+  async transferCoin(ctx, srcUserId, dstUserId, amount){
     console.info('============= START : TRANSFER COIN =============');
-    const srcBCOINJson = await this.getState(ctx, sourceUserId);
+    const srcBCOINJson = await this.getState(ctx, srcUserId);
     if (srcBCOINJson == null)
-      return shim.error("Source enrollment UserId does not exist: " + sourceUserId);
+      return shim.error("Source enrollment UserId does not exist: " + srcUserId);
 
-    const dstBCOINJson = await this.getState(ctx, destUserId);
+    const dstBCOINJson = await this.getState(ctx, dstUserId);
     if (dstBCOINJson == null)
-      return shim.error("Destination enrollment UserId does not exist: " + destUserId);
+      return shim.error("Destination enrollment UserId does not exist: " + dstUserId);
 
     if (srcBCOINJson.amt >= amount) {
       srcBCOINJson.amt -= parseInt(amount);
       dstBCOINJson.amt += parseInt(amount);
  
-      await this.putState(ctx, sourceUserId, srcBCOINJson);
-      await this.putState(ctx, destUserId, dstBCOINJson);
+      await this.putState(ctx, srcUserId, srcBCOINJson);
+      await this.putState(ctx, dstUserId, dstBCOINJson);
     }else{
-      return shim.error("Insufficient fund for Source UserId: " + sourceUserId + '; ' + "Available balance: " + srcBCOINJson.amt + '; ' + "Amount to Transfer: " + amount)
+      return shim.error("Insufficient fund for Source UserId: " + srcUserId + '; ' + "Available balance: " + srcBCOINJson.amt + '; ' + "Amount to Transfer: " + amount)
     }
 
     console.info('============= END : TRANSFER COIN =============');
-    return shim.success("Transferred successfully the amount of " + amount + " blue coins from " + sourceUserId + " to " + destUserId);
+    return shim.success("Transferred successfully the amount of " + amount + " blue coins from " + srcUserId + " to " + dstUserId);
   }
 
 }
