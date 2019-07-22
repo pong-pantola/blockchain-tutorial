@@ -103,6 +103,107 @@ class BlueCoinContract extends Contract {
     return shim.success("Transferred successfully the amount of " + amount + " blue coins from " + srcUserId + " to " + dstUserId);
   }
 
+
+  async getAllAbove(ctx, val) {
+    
+    let queryString = {
+      "selector": {
+        "amt": {"$gt": 300}  
+      }
+
+    }
+
+    let queryResult = await this.getQueryResultForQueryString(ctx, JSON.stringify(queryString));
+    return shim.success({"status" :"success","message":"Getting Balance successfully","result": queryResult });
+  }
+
+  // ===== Example: Parameterized rich query =================================================
+  // queryMarblesByOwner queries for marbles based on a passed in owner.
+  // This is an example of a parameterized query where the query logic is baked into the chaincode,
+  // and accepting a single query parameter (owner).
+  // Only available on state databases that support rich query (e.g. CouchDB)
+  // =========================================================================================
+  async queryMarblesByOwner(stub, args, thisClass) {
+    //   0
+    // 'bob'
+    if (args.length < 1) {
+      throw new Error('Incorrect number of arguments. Expecting owner name.')
+    }
+
+    let owner = args[0].toLowerCase();
+    let queryString = {};
+    queryString.selector = {};
+    queryString.selector.docType = 'marble';
+    queryString.selector.owner = owner;
+    let method = thisClass['getQueryResultForQueryString'];
+    let queryResults = await method(stub, JSON.stringify(queryString), thisClass);
+    return queryResults; //shim.success(queryResults);
+  }  
+
+  async getQueryResultForQueryString(ctx, queryString) {
+
+    console.info('- getQueryResultForQueryString queryString:\n' + queryString)
+    let resultsIterator = await ctx.stub.getQueryResult(queryString);
+    //let method = thisClass['getAllResults'];
+
+    let results = await this.getAllResults(resultsIterator, false);
+
+    return Buffer.from(JSON.stringify(results));
+  }
+
+  async getHistoryForMarble(stub, args, thisClass) {
+
+    if (args.length < 1) {
+      throw new Error('Incorrect number of arguments. Expecting 1')
+    }
+    let marbleName = args[0];
+    console.info('- start getHistoryForMarble: %s\n', marbleName);
+
+    let resultsIterator = await stub.getHistoryForKey(marbleName);
+    let method = thisClass['getAllResults'];
+    let results = await method(resultsIterator, true);
+
+    return Buffer.from(JSON.stringify(results));
+  }
+
+  async getAllResults(iterator, isHistory) {
+    let allResults = [];
+    while (true) {
+      let res = await iterator.next();
+
+      if (res.value && res.value.value.toString()) {
+        let jsonRes = {};
+        console.log(res.value.value.toString('utf8'));
+
+        if (isHistory && isHistory === true) {
+          jsonRes.TxId = res.value.tx_id;
+          jsonRes.Timestamp = res.value.timestamp;
+          jsonRes.IsDelete = res.value.is_delete.toString();
+          try {
+            jsonRes.Value = JSON.parse(res.value.value.toString('utf8'));
+          } catch (err) {
+            console.log(err);
+            jsonRes.Value = res.value.value.toString('utf8');
+          }
+        } else {
+          jsonRes.Key = res.value.key;
+          try {
+            jsonRes.Record = JSON.parse(res.value.value.toString('utf8'));
+          } catch (err) {
+            console.log(err);
+            jsonRes.Record = res.value.value.toString('utf8');
+          }
+        }
+        allResults.push(jsonRes);
+      }
+      if (res.done) {
+        console.log('end of data');
+        await iterator.close();
+        console.info(allResults);
+        return allResults;
+      }
+    }
+  }
 }
 
 module.exports = BlueCoinContract;
