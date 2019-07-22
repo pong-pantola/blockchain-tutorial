@@ -8,6 +8,14 @@ const { Contract } = require('fabric-contract-api');
 const shim = require('fabric-shim');
 
 class BlueCoinContract extends Contract {
+
+  async init(ctx){
+    console.info('============= START : Init =============');
+
+    console.info('============= END : Init =============');
+
+  }
+
   async initLedger(ctx){
     console.info('============= START : Initialize Ledger =============');
 
