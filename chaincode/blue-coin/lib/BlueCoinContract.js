@@ -78,7 +78,7 @@ class BlueCoinContract extends Contract {
 
 
   async getAllAbove(ctx, val) {
-    
+    console.info('============= START : GET ALL ABOVE =============');
     let jsonQuery = {
       "selector": {
         "amt": {"$gt": parseInt(val)}  
@@ -86,10 +86,36 @@ class BlueCoinContract extends Contract {
     }
 
     let queryResult = await Utility.getQueryResult(ctx, jsonQuery);
+
+    console.info('============= END : GET ALL ABOVE =============');    
     return shim.success({"status" :"success","message":"Getting records above " + val + " blue coin","result": queryResult });
   }
 
+  async getTransactionHistory(ctx, userId) {
+    console.info('============= START : GET TRANSACTION HISTORY =============');
 
+    let resultIterator = await ctx.stub.getHistoryForKey(userId);
+
+    let resultArr = await Utility.iteratorToArrayResult(resultIterator, true);
+
+    console.info('============= END : GET TRANSACTION HISTORY =============');
+    return shim.success({"status" :"success","message":"Getting transaction history of " + userId,"result": resultArr });
+  }
+
+  async getHistoryForMarble(stub, args, thisClass) {
+
+    if (args.length < 1) {
+      throw new Error('Incorrect number of arguments. Expecting 1')
+    }
+    let marbleName = args[0];
+    console.info('- start getHistoryForMarble: %s\n', marbleName);
+
+    let resultsIterator = await stub.getHistoryForKey(marbleName);
+    let method = thisClass['getAllResults'];
+    let results = await method(resultsIterator, true);
+
+    return Buffer.from(JSON.stringify(results));
+  }
 
   async getHistoryForMarble(stub, args, thisClass) {
 
