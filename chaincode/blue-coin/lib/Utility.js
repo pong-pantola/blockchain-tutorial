@@ -52,10 +52,10 @@ class Utility{
           jsonRes.Timestamp = res.value.timestamp;
           jsonRes.IsDelete = res.value.is_delete.toString();
 
-          for(let key in jsonRes)
+          for(let key in res.value)
             console.info("key:"+key)
 
-            
+
           try {
             jsonRes.Value = JSON.parse(res.value.value.toString('utf8'));
           } catch (err) {
