@@ -111,7 +111,7 @@ class BlueCoinContract extends Contract {
       }
     }
 
-    let queryResult = await this.getQueryResultg(ctx, jsonQuery);
+    let queryResult = await this.getQueryResult(ctx, jsonQuery);
     return shim.success({"status" :"success","message":"Getting records above " + val + " blue coin","result": queryResult });
   }
 
