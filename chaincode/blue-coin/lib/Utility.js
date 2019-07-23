@@ -51,6 +51,11 @@ class Utility{
           jsonRes.TxId = res.value.tx_id;
           jsonRes.Timestamp = res.value.timestamp;
           jsonRes.IsDelete = res.value.is_delete.toString();
+
+          for(let key in jsonRes)
+            console.info("key:"+key)
+
+            
           try {
             jsonRes.Value = JSON.parse(res.value.value.toString('utf8'));
           } catch (err) {
