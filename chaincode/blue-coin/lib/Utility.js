@@ -37,7 +37,7 @@ class Utility{
     return resultArr;
   }
 
-  async getTransactionHistory(ctx, key) {
+  static async getTransactionHistory(ctx, key) {
     console.info('============= UTILITY START : GET TRANSACTION HISTORY =============');
 
     let resultIterator = await ctx.stub.getHistoryForKey(key);
