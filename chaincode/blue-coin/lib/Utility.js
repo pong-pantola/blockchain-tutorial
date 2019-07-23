@@ -25,7 +25,7 @@ class Utility{
   }
 
   static async getQueryResult(ctx, jsonQuery) {
-    console.info('============= START : GET QUERY RESULT =============');
+    console.info('============= UTILITY START : GET QUERY RESULT =============');
     console.info("jsonQuery: " + JSON.stringify(jsonQuery, null, 4));
 
     let strQuery = JSON.stringify(jsonQuery);
@@ -33,12 +33,23 @@ class Utility{
 
     let resultArr = await Utility.iteratorToArrayResult(resultIterator, false);
 
-    console.info('============= END : GET QUERY RESULT =============');
+    console.info('============= UTILITY END : GET QUERY RESULT =============');
     return resultArr;
   }
-  
+
+  async getTransactionHistory(ctx, key) {
+    console.info('============= UTILITY START : GET TRANSACTION HISTORY =============');
+
+    let resultIterator = await ctx.stub.getHistoryForKey(key);
+
+    let resultArr = await Utility.iteratorToArrayResult(resultIterator, true);
+
+    console.info('============= UTILITY END : GET TRANSACTION HISTORY =============');
+    return resultArr;
+  }  
+
   static async iteratorToArrayResult(iterator, isHistory) {
-    console.info('============= START : Iterator to Array Result =============');
+    console.info('============= UTILITY START : Iterator to Array Result =============');
     let arr = [];
     while (true) {
       let res = await iterator.next();
@@ -76,7 +87,7 @@ class Utility{
       if (res.done) {
         await iterator.close();
         console.info("arr: "+JSON.stringify(arr, null, 4));
-        console.info('============= END : Iterator to Array Result =============');
+        console.info('============= UTILITY END : Iterator to Array Result =============');
         return arr;
       }
     }

@@ -79,7 +79,7 @@ class BlueCoinContract extends Contract {
 
   async getAllAbove(ctx, val) {
     console.info('============= START : GET ALL ABOVE =============');
-    let jsonQuery = {
+    const jsonQuery = {
       "selector": {
         "amt": {"$gt": parseInt(val)}  
       }
@@ -91,16 +91,14 @@ class BlueCoinContract extends Contract {
     return shim.success({"status" :"success","message":"Getting records above " + val + " blue coin","result": queryResult });
   }
 
-  async getTransactionHistory(ctx, userId) {
+  async getTransactionHistory(ctx, userId){
     console.info('============= START : GET TRANSACTION HISTORY =============');
-
-    let resultIterator = await ctx.stub.getHistoryForKey(userId);
-
-    let resultArr = await Utility.iteratorToArrayResult(resultIterator, true);
-
+    const result = Utility.getTransactionHistory(ctx, userId);
     console.info('============= END : GET TRANSACTION HISTORY =============');
-    return shim.success({"status" :"success","message":"Getting transaction history of " + userId,"result": resultArr });
+    return shim.success({"status" :"success","message":"Getting transaction history of " + userId,"result": result });
   }
+
+  
 
   async getHistoryForMarble(stub, args, thisClass) {
 
