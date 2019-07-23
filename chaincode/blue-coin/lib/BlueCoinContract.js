@@ -143,7 +143,7 @@ class BlueCoinContract extends Contract {
     return Buffer.from(JSON.stringify(results));
   }
 
-  async iteratorToArray(iterator, isHistory) {
+  async iteratorToArrayResult(iterator, isHistory) {
     let allResults = [];
     while (true) {
       let res = await iterator.next();
