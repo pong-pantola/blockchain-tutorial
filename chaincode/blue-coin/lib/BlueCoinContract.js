@@ -82,17 +82,16 @@ class BlueCoinContract extends Contract {
     console.info('============= START : TRANSFER COIN =============');
     const srcBCOINJson = await this.getState(ctx, srcUserId);
     if (srcBCOINJson == null)
-      return shim.error("Source enrollment UserId does not exist: " + srcUserId);
+      return shim.error("Source userId does not exist: " + srcUserId);
 
     const dstBCOINJson = await this.getState(ctx, dstUserId);
     if (dstBCOINJson == null)
-      return shim.error("Destination enrollment UserId does not exist: " + dstUserId);
+      return shim.error("Destination userId does not exist: " + dstUserId);
 
     if (srcBCOINJson.amt >= amount) {
       srcBCOINJson.amt -= parseInt(amount);
       dstBCOINJson.amt += parseInt(amount);
- console.log("srcBCOINJson:"+srcBCOINJson.amt)
- console.log("dstBCOINJson:"+dstBCOINJson.amt)
+ 
       await this.putState(ctx, srcUserId, srcBCOINJson);
       await this.putState(ctx, dstUserId, dstBCOINJson);
     }else{
@@ -106,49 +105,27 @@ class BlueCoinContract extends Contract {
 
   async getAllAbove(ctx, val) {
     
-    let queryString = {
+    let jsonQuery = {
       "selector": {
-        "amt": {"$gt": 300}  
+        "amt": {"$gt": parseInt(val)}  
       }
-
     }
 
-    let queryResult = await this.getQueryResultForQueryString(ctx, JSON.stringify(queryString));
-    return shim.success({"status" :"success","message":"Getting Balance successfully","result": queryResult });
+    let queryResult = await this.getQueryResultg(ctx, jsonQuery);
+    return shim.success({"status" :"success","message":"Getting records above " + val + " blue coin","result": queryResult });
   }
 
-  // ===== Example: Parameterized rich query =================================================
-  // queryMarblesByOwner queries for marbles based on a passed in owner.
-  // This is an example of a parameterized query where the query logic is baked into the chaincode,
-  // and accepting a single query parameter (owner).
-  // Only available on state databases that support rich query (e.g. CouchDB)
-  // =========================================================================================
-  async queryMarblesByOwner(stub, args, thisClass) {
-    //   0
-    // 'bob'
-    if (args.length < 1) {
-      throw new Error('Incorrect number of arguments. Expecting owner name.')
-    }
+  async getQueryResult(ctx, jsonQuery) {
+    console.info('============= START : GET QUERY RESULT =============');
+    console.info("jsonQuery: " + JSON.stringify(jsonQuery, null, 4));
 
-    let owner = args[0].toLowerCase();
-    let queryString = {};
-    queryString.selector = {};
-    queryString.selector.docType = 'marble';
-    queryString.selector.owner = owner;
-    let method = thisClass['getQueryResultForQueryString'];
-    let queryResults = await method(stub, JSON.stringify(queryString), thisClass);
-    return queryResults; //shim.success(queryResults);
-  }  
+    let strQuery = JSON.stringify(jsonQuery);
+    let iteratorResult = await ctx.stub.getQueryResult(strQuery);
 
-  async getQueryResultForQueryString(ctx, queryString) {
+    let result = await this.iteratorToArrayResult(iteratorResult, false);
 
-    console.info('- getQueryResultForQueryString queryString:\n' + queryString)
-    let resultsIterator = await ctx.stub.getQueryResult(queryString);
-    //let method = thisClass['getAllResults'];
-
-    let results = await this.getAllResults(resultsIterator, false);
-
-    return Buffer.from(JSON.stringify(results));
+    console.info('============= END : GET QUERY RESULT =============');
+    return result;
   }
 
   async getHistoryForMarble(stub, args, thisClass) {
@@ -166,7 +143,7 @@ class BlueCoinContract extends Contract {
     return Buffer.from(JSON.stringify(results));
   }
 
-  async getAllResults(iterator, isHistory) {
+  async iteratorToArray(iterator, isHistory) {
     let allResults = [];
     while (true) {
       let res = await iterator.next();
