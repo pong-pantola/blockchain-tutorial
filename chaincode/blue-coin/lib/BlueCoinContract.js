@@ -94,12 +94,12 @@ class BlueCoinContract extends Contract {
     console.info("jsonQuery: " + JSON.stringify(jsonQuery, null, 4));
 
     let strQuery = JSON.stringify(jsonQuery);
-    let iteratorResult = await ctx.stub.getQueryResult(strQuery);
+    let resultIterator = await ctx.stub.getQueryResult(strQuery);
 
-    let result = await this.iteratorToArrayResult(iteratorResult, false);
+    let resultArr = await this.iteratorToArrayResult(resultIterator, false);
 
     console.info('============= END : GET QUERY RESULT =============');
-    return result;
+    return resultArr;
   }
 
   async getHistoryForMarble(stub, args, thisClass) {
@@ -118,13 +118,14 @@ class BlueCoinContract extends Contract {
   }
 
   async iteratorToArrayResult(iterator, isHistory) {
-    let allResults = [];
+    console.info('============= START : Iterator to Array Result =============');
+    let arr = [];
     while (true) {
       let res = await iterator.next();
 
       if (res.value && res.value.value.toString()) {
         let jsonRes = {};
-        console.log(res.value.value.toString('utf8'));
+        //console.log(res.value.value.toString('utf8'));
 
         if (isHistory && isHistory === true) {
           jsonRes.TxId = res.value.tx_id;
@@ -145,13 +146,13 @@ class BlueCoinContract extends Contract {
             jsonRes.Record = res.value.value.toString('utf8');
           }
         }
-        allResults.push(jsonRes);
+        arr.push(jsonRes);
       }
       if (res.done) {
-        console.log('end of data');
         await iterator.close();
-        console.info(allResults);
-        return allResults;
+        console.info("arr: "+JSON.stringify(arr, null, 4));
+        console.info('============= END : Iterator to Array Result =============');
+        return arr;
       }
     }
   }
