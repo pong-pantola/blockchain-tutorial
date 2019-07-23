@@ -1,11 +1,8 @@
-/*
- * SPDX-License-Identifier: Apache-2.0
- */
-
 'use strict';
 
 const { Contract } = require('fabric-contract-api');
 const shim = require('fabric-shim');
+const Utility = require("./Utility.js");
 
 class BlueCoinContract extends Contract {
 
@@ -23,32 +20,9 @@ class BlueCoinContract extends Contract {
 
   }
 
-  bytesToJson(bytes){
-    if (bytes == null || bytes.length === 0)
-      return null;
-    
-    return JSON.parse(bytes.toString())
-  }
-
-  jsonToBytes(json){
-    if (json == null)
-      return null;
-
-    return Buffer.from(JSON.stringify(json));
-  }
-
-  async getState(ctx, key){
-    const bytes = await ctx.stub.getState(key);
-    return this.bytesToJson(bytes);
-  }
-
-  async putState(ctx, key, json){
-    await ctx.stub.putState(key, this.jsonToBytes(json));
-  }
-
   async generateInitialCoin(ctx, userId) {
     console.info('============= START : Generate Initial Coin =============');
-    let json = await this.getState(ctx, userId);
+    let json = await Utility.getState(ctx, userId);
   
     //check if organization has already generated blue coins before
     if (json != null)
@@ -59,7 +33,7 @@ class BlueCoinContract extends Contract {
       amt: 500
     }
 
-    await this.putState(ctx, userId, json);
+    await Utility.putState(ctx, userId, json);
 
     console.info('============= END : Generate Initial Coin =============');
     return shim.success({"status" :"success","message":"Successfully generated blue coins","result": json });
@@ -67,7 +41,7 @@ class BlueCoinContract extends Contract {
 
   async getBalance(ctx, userId) {
     console.info('============= START : Get Balance =============');    
-    const json = await this.getState(ctx, userId);
+    const json = await Utility.getState(ctx, userId);
  
 
     if (json == null)
@@ -80,11 +54,11 @@ class BlueCoinContract extends Contract {
 
   async transferCoin(ctx, srcUserId, dstUserId, amount){
     console.info('============= START : TRANSFER COIN =============');
-    const srcBCOINJson = await this.getState(ctx, srcUserId);
+    const srcBCOINJson = await Utility.getState(ctx, srcUserId);
     if (srcBCOINJson == null)
       return shim.error("Source userId does not exist: " + srcUserId);
 
-    const dstBCOINJson = await this.getState(ctx, dstUserId);
+    const dstBCOINJson = await Utility.getState(ctx, dstUserId);
     if (dstBCOINJson == null)
       return shim.error("Destination userId does not exist: " + dstUserId);
 
@@ -92,8 +66,8 @@ class BlueCoinContract extends Contract {
       srcBCOINJson.amt -= parseInt(amount);
       dstBCOINJson.amt += parseInt(amount);
  
-      await this.putState(ctx, srcUserId, srcBCOINJson);
-      await this.putState(ctx, dstUserId, dstBCOINJson);
+      await Utility.putState(ctx, srcUserId, srcBCOINJson);
+      await Utility.putState(ctx, dstUserId, dstBCOINJson);
     }else{
       return shim.error("Insufficient fund for Source UserId: " + srcUserId + '; ' + "Available balance: " + srcBCOINJson.amt + '; ' + "Amount to Transfer: " + amount)
     }
