@@ -81,6 +81,11 @@ main(1, 2, 3, 4)
 async function main(){
   const config = require("./config/config.json")
   const txMgr = new TransactionManager(config)
-  const response = txMgr.submitTransaction("user1", "mychannel", "bluecoin", "generateInitialCoin", "user1");
+  const response = await txMgr.submitTransaction("user1", "mychannel", "blue-coin", "generateInitialCoin", "user1");
   console.log("response:"+response);
+
+
+  const response = await txMgr.submitTransaction("user1", "mychannel", "blue-coin", "getBalance", "user1");
+  console.log("response:"+response);
+
 }
