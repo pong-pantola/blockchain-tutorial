@@ -2,6 +2,7 @@
 
 const { Contract } = require('fabric-contract-api');
 const shim = require('fabric-shim');
+const ClientIdentity = require('fabric-shim').ClientIdentity;
 const Utility = require("./Utility.js");
 
 class BlueCoinContract extends Contract {
@@ -41,6 +42,15 @@ class BlueCoinContract extends Contract {
 
   async getBalance(ctx, userId) {
     console.info('============= START : Get Balance =============');    
+
+    let cid = new ClientIdentity(ctx.stub);
+    console.log("getID():"+cid.getID())
+    console.log("getMSPID():"+cid.getMSPID())
+    console.log("getAttributeValue('role'):"+cid.getAttributeValue('role'))
+    console.log("getAttributeValue('affiliation'):"+cid.getAttributeValue('affiliation'))
+    console.log("getAttributeValue('enrollmentID'):"+cid.getAttributeValue('enrollmentID'))
+
+    
     const json = await Utility.getState(ctx, userId);
  
 
