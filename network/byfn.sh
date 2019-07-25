@@ -30,7 +30,7 @@
 # this may be commented out to resolve installed version of tools if desired
 
 #export PATH=${PWD}/../bin:${PWD}:$PATH
-export ../../fabric-samples/bin
+export PATH=${PWD}/../../fabric-samples/bin:${PWD}:$PATH
 export FABRIC_CFG_PATH=${PWD}
 export VERBOSE=false
 
@@ -488,7 +488,8 @@ COMPOSE_FILE_ORG3=docker-compose-org3.yaml
 COMPOSE_FILE_KAFKA=docker-compose-kafka.yaml
 #
 # use golang as the default language for chaincode
-LANGUAGE=golang
+#LANGUAGE=golang
+LANGUAGE=node
 # default image tag
 IMAGETAG="latest"
 # default consensus type
