@@ -13,7 +13,7 @@ class UserManager{
     this.connectionConfig = require(this.connectionConfigFilePath);
   }
 
-  async registerUser(userId, affiliation, role, adminId){
+  async registerUser(userId, affiliation, role, attrArr, adminId){
     let gateway;
     try{
       // Create a new file system based wallet for managing identities.
@@ -41,7 +41,7 @@ class UserManager{
       const adminIdentity = gateway.getCurrentIdentity();
 
       // Register the user, enroll the user, and import the new identity into the wallet.
-      const userSecret = await ca.register({ affiliation: affiliation, enrollmentID: userId, role: role }, adminIdentity);
+      const userSecret = await ca.register({ affiliation: affiliation, enrollmentID: userId, role: role, attrs: attrArr}, adminIdentity);
 
       return userSecret;
     }catch(error){
