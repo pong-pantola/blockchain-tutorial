@@ -131,7 +131,7 @@ Orderer: &OrdererDefaults
 ################################################################################
 Profiles:
 
-    TwoOrgOrdererGenesis:
+    TwoOrgsOrdererGenesis:
         Orderer:
             <<: *OrdererDefaults
             Organizations:
@@ -141,7 +141,7 @@ Profiles:
                 Organizations:
                     - *Org1
                     - *Org2
-    TwoOrgChannel:
+    TwoOrgsChannel:
         Consortium: SampleConsortium
         Application:
             <<: *ApplicationDefaults
