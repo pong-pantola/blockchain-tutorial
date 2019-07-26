@@ -315,7 +315,7 @@ function replacePrivateKey() {
   fi
 
   # Copy the template to the file that will be modified to add the private key
-  cp docker-compose-template.yaml docker-compose.yml
+  cp docker-compose-template.yml docker-compose.yml
 
   # The next steps will replace the template's contents with the
   # actual values of the private key file names for the two CAs.
