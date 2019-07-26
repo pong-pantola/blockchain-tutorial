@@ -31,7 +31,7 @@ mkdir ../wallet
 
 # launch network; create channel and join peer to channel
 #cd ../../fabric-samples/basic-network
-cd ../network/network
+cd ../network
 ./start.sh
 
 # Now launch the CLI container in order to install, instantiate chaincode
