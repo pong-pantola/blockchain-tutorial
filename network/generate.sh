@@ -296,7 +296,7 @@ function networkDown() {
     #Cleanup images
     removeUnwantedImages
     # remove orderer block and other channel configuration transactions and certs
-    rm -rf channel-artifacts/*.block channel-artifacts/*.tx crypto-config ./org3-artifacts/crypto-config/ channel-artifacts/org3.json
+    rm -rf config/*.block config/*.tx crypto-config ./org3-artifacts/crypto-config/ config/org3.json
     # remove the docker-compose yaml file that was customized to the example
     rm -f docker-compose.yml
   fi
@@ -404,7 +404,7 @@ function generateCerts() {
 # its digital signature verified.
 #
 # This function will generate the crypto material and our four configuration
-# artifacts, and subsequently output these files into the ``channel-artifacts``
+# artifacts, and subsequently output these files into the ``config``
 # folder.
 #
 # If you receive the following warning, it can be safely ignored:
@@ -431,11 +431,11 @@ function generateChannelArtifacts() {
   echo "CONSENSUS_TYPE="$CONSENSUS_TYPE
   set -x
   if [ "$CONSENSUS_TYPE" == "solo" ]; then
-    configtxgen -profile TwoOrgsOrdererGenesis -channelID byfn-sys-channel -outputBlock ./channel-artifacts/genesis.block
+    configtxgen -profile TwoOrgsOrdererGenesis -channelID byfn-sys-channel -outputBlock ./config/genesis.block
   elif [ "$CONSENSUS_TYPE" == "kafka" ]; then
-    configtxgen -profile SampleDevModeKafka -channelID byfn-sys-channel -outputBlock ./channel-artifacts/genesis.block
+    configtxgen -profile SampleDevModeKafka -channelID byfn-sys-channel -outputBlock ./config/genesis.block
   elif [ "$CONSENSUS_TYPE" == "etcdraft" ]; then
-    configtxgen -profile SampleMultiNodeEtcdRaft -channelID byfn-sys-channel -outputBlock ./channel-artifacts/genesis.block
+    configtxgen -profile SampleMultiNodeEtcdRaft -channelID byfn-sys-channel -outputBlock ./config/genesis.block
   else
     set +x
     echo "unrecognized CONSESUS_TYPE='$CONSENSUS_TYPE'. exiting"
@@ -452,7 +452,7 @@ function generateChannelArtifacts() {
   echo "### Generating channel configuration transaction 'channel.tx' ###"
   echo "#################################################################"
   set -x
-  configtxgen -profile TwoOrgsChannel -outputCreateChannelTx ./channel-artifacts/channel.tx -channelID $CHANNEL_NAME
+  configtxgen -profile TwoOrgsChannel -outputCreateChannelTx ./config/channel.tx -channelID $CHANNEL_NAME
   res=$?
   set +x
   if [ $res -ne 0 ]; then
@@ -465,7 +465,7 @@ function generateChannelArtifacts() {
   echo "#######    Generating anchor peer update for Org1MSP   ##########"
   echo "#################################################################"
   set -x
-  configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Org1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org1MSP
+  configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./config/Org1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org1MSP
   res=$?
   set +x
   if [ $res -ne 0 ]; then
@@ -479,7 +479,7 @@ function generateChannelArtifacts() {
   echo "#################################################################"
   set -x
   configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate \
-    ./channel-artifacts/Org2MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org2MSP
+    ./config/Org2MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org2MSP
   res=$?
   set +x
   if [ $res -ne 0 ]; then

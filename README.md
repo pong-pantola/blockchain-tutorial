@@ -47,7 +47,10 @@ peer chaincode instantiate -o orderer.example.com:7050 -C mychannel -n blue-coin
 peer chaincode invoke -o orderer.example.com:7050 -C mychannel -n blue-coin -c '{"function":"instantiate","Args":[]}'
 xxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-docker exec -e "CORE_PEER_LOCALMSPID=Org1MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp" cli peer chaincode invoke -o orderer.example.com:7050 -C mychannel -n blue-coin -c '{"function":"generateInitialCoin","Args":["user1"]}'
+docker exec -e "CORE_PEER_LOCALMSPID=Org1MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp" cli1 peer chaincode invoke -o orderer.example.com:7050 -C mychannel -n blue-coin -c '{"function":"generateInitialCoin","Args":["user1"]}'
+
+docker exec -e "CORE_PEER_LOCALMSPID=Org2MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp" cli2 peer chaincode invoke -o orderer.example.com:7050 -C mychannel -n blue-coin -c '{"function":"generateInitialCoin","Args":["user1"]}'
+
 
 docker exec -e "CORE_PEER_LOCALMSPID=Org1MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp" cli peer chaincode invoke -o orderer.example.com:7050 -C mychannel -n blue-coin -c '{"function":"generateInitialCoin","Args":["user2"]}'
 
