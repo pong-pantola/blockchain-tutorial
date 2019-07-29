@@ -1,8 +1,15 @@
 'use strict';
 
+const ClientIdentity = require('fabric-shim').ClientIdentity;
+
 class Utility{
 
-  static assertMspId(mspId){
+  static getMspId(ctx){
+    const cid = new ClientIdentity(ctx.stub);
+    return cid.getMSPID();
+  }
+
+  static assertMspId(ctx, mspId){
     const cid = new ClientIdentity(ctx.stub);
     return mspId == cid.getMSPID();
   }

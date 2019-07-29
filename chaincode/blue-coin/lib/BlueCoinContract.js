@@ -17,8 +17,8 @@ class BlueCoinContract extends Contract {
   async generateInitialCoin(ctx, mspId) {
     console.info('============= START : Generate Initial Coin =============');
 
-    if (!Utility.assertMspId(mspId))
-      return shim.error("The mspId should be the same as the caller's mspId");
+    if (!Utility.assertMspId(ctx, mspId))
+      return shim.error("The parameter mspId should be the same as the caller's mspId: " + Utiliy.getMspId(ctx));
 
     let json = await Utility.getState(ctx, mspId);
   
