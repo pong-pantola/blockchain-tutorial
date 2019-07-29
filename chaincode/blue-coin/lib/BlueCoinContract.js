@@ -16,11 +16,15 @@ class BlueCoinContract extends Contract {
 
   async generateInitialCoin(ctx, mspId) {
     console.info('============= START : Generate Initial Coin =============');
+
+    if (!Utility.assertMspId(mspId))
+      return shim.error("The mspId should be the same as the caller's mspId");
+
     let json = await Utility.getState(ctx, mspId);
   
     //check if organization has already generated blue coins before
     if (json != null)
-      return shim.error("User " + mspId + " has generated already initial blue coins before.  User can generate blue coins only once.")
+      return shim.error("Organization " + mspId + " has generated already initial blue coins before.  Organization can generate blue coins only once.")
 
     json = {
       mspId: mspId,
@@ -48,35 +52,35 @@ class BlueCoinContract extends Contract {
  
 
     if (json == null)
-     return shim.error("User " + mspId + " has no record in the system.  Run generateInitialCoin first to get initial coins.")
+     return shim.error("Organization " + mspId + " has no record in the system.  Run generateInitialCoin first to get initial coins.")
 
     console.info('============= END : Get Balance =============');    
 
     return shim.success({"status" :"success","message":"Getting Balance successfully","result": json });
   }  
 
-  async transferCoin(ctx, srcUserId, dstUserId, amount){
+  async transferCoin(ctx, srcMspId, dstMspId, amount){
     console.info('============= START : TRANSFER COIN =============');
-    const srcBCOINJson = await Utility.getState(ctx, srcUserId);
+    const srcBCOINJson = await Utility.getState(ctx, srcMspId);
     if (srcBCOINJson == null)
-      return shim.error("Source mspId does not exist: " + srcUserId);
+      return shim.error("Source mspId does not exist: " + srcMspId);
 
-    const dstBCOINJson = await Utility.getState(ctx, dstUserId);
+    const dstBCOINJson = await Utility.getState(ctx, dstMspId);
     if (dstBCOINJson == null)
-      return shim.error("Destination mspId does not exist: " + dstUserId);
+      return shim.error("Destination mspId does not exist: " + dstMspId);
 
     if (srcBCOINJson.amt >= amount) {
       srcBCOINJson.amt -= parseInt(amount);
       dstBCOINJson.amt += parseInt(amount);
  
-      await Utility.putState(ctx, srcUserId, srcBCOINJson);
-      await Utility.putState(ctx, dstUserId, dstBCOINJson);
+      await Utility.putState(ctx, srcMspId, srcBCOINJson);
+      await Utility.putState(ctx, dstMspId, dstBCOINJson);
     }else{
-      return shim.error("Insufficient fund for Source UserId: " + srcUserId + '; ' + "Available balance: " + srcBCOINJson.amt + '; ' + "Amount to Transfer: " + amount)
+      return shim.error("Insufficient fund for Source MspId: " + srcMspId + '; ' + "Available balance: " + srcBCOINJson.amt + '; ' + "Amount to Transfer: " + amount)
     }
 
     console.info('============= END : TRANSFER COIN =============');
-    return shim.success("Transferred successfully the amount of " + amount + " blue coins from " + srcUserId + " to " + dstUserId);
+    return shim.success("Transferred successfully the amount of " + amount + " blue coins from " + srcMspId + " to " + dstMspId);
   }
 
 

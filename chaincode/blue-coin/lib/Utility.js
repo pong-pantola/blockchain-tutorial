@@ -1,6 +1,12 @@
 'use strict';
 
 class Utility{
+
+  static assertMspId(mspId){
+    const cid = new ClientIdentity(ctx.stub);
+    return mspId == cid.getMSPID();
+  }
+
   static bytesToJson(bytes){
     if (bytes == null || bytes.length === 0)
       return null;
