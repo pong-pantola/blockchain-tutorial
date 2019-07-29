@@ -3,4 +3,4 @@ cd network
 chmod +x *.sh
 cd ..
 cd chaincode
-chmodx +x *.sh
+chmod +x *.sh
