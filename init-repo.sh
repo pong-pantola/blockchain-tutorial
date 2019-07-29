@@ -1,3 +1,4 @@
+#!/bin/bash
 cd network
 chmod +x *.sh
 cd ..
