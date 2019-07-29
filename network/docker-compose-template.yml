@@ -364,7 +364,7 @@ services:
     networks:
         - basic
 
-cli1.org2:
+  cli1.org2:
     container_name: cli1.org2
     image: hyperledger/fabric-tools
     tty: true
