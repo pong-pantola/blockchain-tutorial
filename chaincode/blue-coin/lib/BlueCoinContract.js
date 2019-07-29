@@ -18,7 +18,7 @@ class BlueCoinContract extends Contract {
     console.info('============= START : Generate Initial Coin =============');
 
     if (!Utility.assertMspId(ctx, mspId))
-      return shim.error("The parameter mspId should be the same as the caller's mspId: " + Utiliy.getMspId(ctx));
+      return shim.error("The parameter mspId should be the same as the caller's mspId: " + Utility.getMspId(ctx));
 
     let json = await Utility.getState(ctx, mspId);
   
@@ -39,6 +39,9 @@ class BlueCoinContract extends Contract {
 
   async getBalance(ctx, mspId) {
     console.info('============= START : Get Balance =============');    
+
+    if (!Utility.assertMspId(ctx, mspId))
+      return shim.error("The parameter mspId should be the same as the caller's mspId: " + Utility.getMspId(ctx));
 
     let cid = new ClientIdentity(ctx.stub);
     console.log("getID():"+cid.getID())
@@ -61,6 +64,11 @@ class BlueCoinContract extends Contract {
 
   async transferCoin(ctx, srcMspId, dstMspId, amount){
     console.info('============= START : TRANSFER COIN =============');
+
+    if (!Utility.assertMspId(ctx, srcMspId))
+      return shim.error("The parameter srcMspId should be the same as the caller's mspId: " + Utility.getMspId(ctx));
+
+
     const srcBCOINJson = await Utility.getState(ctx, srcMspId);
     if (srcBCOINJson == null)
       return shim.error("Source mspId does not exist: " + srcMspId);
@@ -86,6 +94,7 @@ class BlueCoinContract extends Contract {
 
   async getAllAbove(ctx, val) {
     console.info('============= START : GET ALL ABOVE =============');
+
     const jsonQuery = {
       "selector": {
         "amt": {"$gt": parseInt(val)}  
@@ -100,42 +109,15 @@ class BlueCoinContract extends Contract {
 
   async getTransactionHistory(ctx, mspId){
     console.info('============= START : GET TRANSACTION HISTORY =============');
+
+    if (!Utility.assertMspId(ctx, mspId))
+      return shim.error("The parameter mspId should be the same as the caller's mspId: " + Utility.getMspId(ctx));
+    
     const result = Utility.getTransactionHistory(ctx, mspId);
     console.info('============= END : GET TRANSACTION HISTORY =============');
     return shim.success({"status" :"success","message":"Getting transaction history of " + mspId,"result": result });
   }
 
-  
-
-  async getHistoryForMarble(stub, args, thisClass) {
-
-    if (args.length < 1) {
-      throw new Error('Incorrect number of arguments. Expecting 1')
-    }
-    let marbleName = args[0];
-    console.info('- start getHistoryForMarble: %s\n', marbleName);
-
-    let resultsIterator = await stub.getHistoryForKey(marbleName);
-    let method = thisClass['getAllResults'];
-    let results = await method(resultsIterator, true);
-
-    return Buffer.from(JSON.stringify(results));
-  }
-
-  async getHistoryForMarble(stub, args, thisClass) {
-
-    if (args.length < 1) {
-      throw new Error('Incorrect number of arguments. Expecting 1')
-    }
-    let marbleName = args[0];
-    console.info('- start getHistoryForMarble: %s\n', marbleName);
-
-    let resultsIterator = await stub.getHistoryForKey(marbleName);
-    let method = thisClass['getAllResults'];
-    let results = await method(resultsIterator, true);
-
-    return Buffer.from(JSON.stringify(results));
-  }
 
 }
 
