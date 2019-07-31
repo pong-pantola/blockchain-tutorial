@@ -219,7 +219,7 @@ async function main(){
   });  
 console.log("response:"+JSON.stringify(response, null, 4));
 
-/*
+
   response = await txMgr.submitTransaction({
       userId: "user1", 
       channelName: "mychannel", 
@@ -228,7 +228,8 @@ console.log("response:"+JSON.stringify(response, null, 4));
       argArr: ["Org1MSP"]
     });
 
-  console.log("response:"+JSON.stringify(response, null, 4));
+  console.log("transaction count:"+response.payload.payload.length);
+/*  
   console.log("response:"+JSON.stringify(response.payload.result[0].TxId, null, 4));
   let txId = response.payload.result[1].TxId;
   let txDetail = await txMgr.queryTransaction(
