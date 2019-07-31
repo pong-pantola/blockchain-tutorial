@@ -37,6 +37,15 @@ class Utility{
     await ctx.stub.putState(key, this.jsonToBytes(json));
   }
 
+  static async getPrivateData(ctx, collectionName, key){
+    const bytes = await ctx.stub.getPrivateData(collectionName, key);
+    return this.bytesToJson(bytes);
+  }
+
+  static async putPrivateData(ctx, collectionName, key, json){
+    await ctx.stub.putPrivateData(collectionName, key, this.jsonToBytes(json));
+  }
+
   static async getQueryResult(ctx, jsonQuery) {
     console.info('============= UTILITY START : GET QUERY RESULT =============');
     console.info("jsonQuery: " + JSON.stringify(jsonQuery, null, 4));
