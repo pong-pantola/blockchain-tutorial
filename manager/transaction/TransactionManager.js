@@ -9,84 +9,56 @@ const { FileSystemWallet, Gateway } = require('fabric-network');
 class TransactionManager{
 
   constructor(config){
-
     this.connectionConfigFilePath = config.connectionConfigFilePath;
-
     this.walletDirPath = config.walletDirPath;
-
-
-
     this.connectionConfig = require(this.connectionConfigFilePath);
-
   }
 
-  async queryTransactionX(txId){
-var Fabric_Client = require('fabric-client');
-//Fabric_Client.newDefaultKeyValueStore({ path: "../../walletx"})
-console.log("step 1");
-var fabric_client = new Fabric_Client();
-console.log("step 2");
-fabric_client.setUserContext('user1', true);
-console.log("step 3");
-// setup the fabric network
-var channel = fabric_client.newChannel('mychannel');
-console.log("step 4");
-var peer = fabric_client.newPeer('grpc://localhost:7051');
-console.log("step 5");
-channel.addPeer(peer);
-console.log("step 6");
-
-let pTx = await channel.queryTransaction(txId)
-console.log("step 7");
-  return pTx;
-  }
-
-
-  async queryTransaction(userId, channelName, peerName, txId){
+  async queryTransaction(param){
     let gateway;
-
-
 
     try{
       // Create a new file system based wallet for managing identities.
       const wallet = new FileSystemWallet(this.walletDirPath);
 
       // Check to see if we've already enrolled the user.
-      const userExists = await wallet.exists(userId);
+      const userExists = await wallet.exists(param.userId);
 
       if (!userExists) {
-        throw Error("User " + userId + " does not exist in the wallet.");
+        throw Error("User " + param.userId + " does not exist in the wallet.");
       }
 
       // Create a new gateway for connecting to our peer node.
       const gateway = new Gateway();
 
       //await gateway.connect(ccp, { wallet, identity: 'user1', discovery: { enabled: false } });
-      await gateway.connect(this.connectionConfig, { wallet, identity: userId, discovery: { enabled: false } });
+      await gateway.connect(this.connectionConfig, { wallet, identity: param.userId, discovery: { enabled: false } });
 
       const client = gateway.getClient();
 
       let peerUrl;
+
+      //if param.peerName is not specified, get the first peer in the connection profile
+      if (!param.peerName && this.connectionConfig.peers){
+        let keyArr = Object.keys(this.connectionConfig.peers)
+        if (keyArr.length > 0)
+          param.peerName = keyArr[0];
+      }
+
       if (this.connectionConfig.peers &&
-          this.connectionConfig.peers[peerName] &&
-          this.connectionConfig.peers[peerName].url)
-        peerUrl = this.connectionConfig.peers[peerName].url;
+          this.connectionConfig.peers[param.peerName] &&
+          this.connectionConfig.peers[param.peerName].url)
+        peerUrl = this.connectionConfig.peers[param.peerName].url;
       else
-        throw Error("Cannot find URL of peer " + peerName + " in connection profile.");
+        throw Error("Cannot find URL of peer " + param.peerName + " in connection profile.");
 
       const peer = client.newPeer(peerUrl);
-      const channel = client.newChannel(channelName);
+      const channel = client.newChannel(param.channelName);
 
-      const pTx = await channel.queryTransaction(txId, peer)
+      const pTx = await channel.queryTransaction(param.txId, peer)
 
       const txDetail = pTx.transactionEnvelope.payload.data.actions[0];
-      //const header = txDetail.header;
       const payload = txDetail.payload;
-    
-      //console.log("pTx:"+JSON.stringify(pTx.transactionEnvelope.payload.data.actions[0], null, 4));
-    
-      //let nonce = header.nonce;
-      //console.log("nonce:" + nonce.toString("utf16le"));
     
       const argArr = payload.chaincode_proposal_payload.input.chaincode_spec.input.args;
     
@@ -116,98 +88,43 @@ console.log("step 7");
     }
   }
 
-
-
-
-
-  async submitTransaction(userId, channelName, contractName, funcName, ...args){
+  async submitTransaction(param){
 
     let gateway;
-
-
 
     try{
 
       // Create a new file system based wallet for managing identities.
-
       const wallet = new FileSystemWallet(this.walletDirPath);
 
-
-
       // Check to see if we've already enrolled the user.
-
-      const userExists = await wallet.exists(userId);
+      const userExists = await wallet.exists(param.userId);
 
       if (!userExists) {
-
-        throw Error("User " + userId + " does not exist in the wallet.");
-
+        throw Error("User " + param.userId + " does not exist in the wallet.");
       }
 
-
-
       // Create a new gateway for connecting to our peer node.
-
       const gateway = new Gateway();
 
-      //await gateway.connect(ccp, { wallet, identity: 'user1', discovery: { enabled: false } });
-
-      await gateway.connect(this.connectionConfig, { wallet, identity: userId, discovery: { enabled: false } });
-
-
+      await gateway.connect(this.connectionConfig, { wallet, identity: param.userId, discovery: { enabled: false } });
 
       // Get the network (channel) our contract is deployed to.
-
-      //const network = await gateway.getNetwork('mychannel');
-
-      const network = await gateway.getNetwork(channelName);
-
-
+      const network = await gateway.getNetwork(param.channelName);
 
       // Get the contract from the network.
+      const contract = network.getContract(param.contractName);
 
-      //const contract = network.getContract('fabcar');
-
-      const contract = network.getContract(contractName);
-
-
-
-      // Submit the specified transaction.
-
-      // createCar transaction - requires 5 argument, ex: ('createCar', 'CAR12', 'Honda', 'Accord', 'Black', 'Tom')
-
-      // changeCarOwner transaction - requires 2 args , ex: ('changeCarOwner', 'CAR10', 'Dave')
-
-      //await contract.submitTransaction('createCar', 'CAR12', 'Honda', 'Accord', 'Black', 'Tom');
-
-      const response = await contract.submitTransaction(funcName, ...args);
-
-
+      const response = await contract.submitTransaction(param.funcName, ...param.argArr);
 
       return JSON.parse(response.toString());
-
-        //console.log('Transaction has been submitted');
-
-
-
-
-
     }catch(error){
-
       throw error;
-
     }finally{
-
       if (gateway)
-
         gateway.disconnect();
-
     }
-
   }
-
-
-
 }
 
 
@@ -259,7 +176,14 @@ async function main(){
   const txMgr = new TransactionManager(config)
 
   //const response = await txMgr.submitTransaction("user1", "mychannel", "blue-coin", "generateInitialCoin", "user1");
-
+/*  const response = await txMgr.submitTransaction({
+      userId: "user1", 
+      channelName: "mychannel", 
+      contractName: "blue-coin", 
+      funcName: "generateInitialCoin", 
+      argArr: ["user1"]
+    });
+*/
   //console.log("response:"+response);
 
 
@@ -272,12 +196,25 @@ async function main(){
 
 
 
-  response = await txMgr.submitTransaction("user1", "mychannel", "blue-coin", "getTransactionHistory", "Org1MSP");
+  response = await txMgr.submitTransaction({
+      userId: "user1", 
+      channelName: "mychannel", 
+      contractName: "blue-coin", 
+      funcName: "getTransactionHistory", 
+      argArr: ["Org1MSP"]
+    });
 
 
   console.log("response:"+JSON.stringify(response.payload.result[0].TxId, null, 4));
   let txId = response.payload.result[1].TxId;
-  let txDetail = await txMgr.queryTransaction("user1", "mychannel", txId);
+  let txDetail = await txMgr.queryTransaction(
+    {
+      userId: "user1",
+      channelName: "mychannel",
+      peerName: "peer0.org1.example.com",
+      txId: txId
+    });
+  
   console.log("txDetail: " + JSON.stringify(txDetail, null, 4))
 
 }
