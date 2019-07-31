@@ -115,7 +115,14 @@ class TransactionManager{
       // Get the contract from the network.
       const contract = network.getContract(param.contractName);
 
-      const response = await contract.submitTransaction(param.funcName, ...param.argArr);
+      let response;
+      if (param.callback){
+        const transaction = contract.createTransaction(param.funcName);
+        //callback should have the following parameters: err, transactionId, status, blockNumber
+        const listener = await transaction.addCommitListener(param.callback);
+        response = await transaction.submit(...param.argArr);
+      }else
+        response = await contract.submitTransaction(param.funcName, ...param.argArr);
 
       return JSON.parse(response.toString());
     }catch(error){
@@ -125,6 +132,8 @@ class TransactionManager{
         gateway.disconnect();
     }
   }
+
+
 }
 
 
@@ -194,8 +203,23 @@ async function main(){
 
   //console.log("response:"+JSON.stringify(response, null, 4));
 
+  response = await txMgr.submitTransaction({
+    userId: "user1", 
+    channelName: "mychannel",
+    //peerName: "peer0.org1.example.com", 
+    contractName: "blue-coin", 
+    funcName: "transferCoin", 
+    argArr: ["Org1MSP", "Org2MSP", "1"],
+    callback: function(err, txId, status, blockNo){
+                if (err)
+                  console.err(err);
+                else
+                  console.log(`txId: ${txId}  status: ${status}  blockNo: ${blockNo}`)
+              }
+  });  
+console.log("response:"+JSON.stringify(response, null, 4));
 
-
+/*
   response = await txMgr.submitTransaction({
       userId: "user1", 
       channelName: "mychannel", 
@@ -204,7 +228,7 @@ async function main(){
       argArr: ["Org1MSP"]
     });
 
-
+  console.log("response:"+JSON.stringify(response, null, 4));
   console.log("response:"+JSON.stringify(response.payload.result[0].TxId, null, 4));
   let txId = response.payload.result[1].TxId;
   let txDetail = await txMgr.queryTransaction(
@@ -216,7 +240,7 @@ async function main(){
     });
   
   console.log("txDetail: " + JSON.stringify(txDetail, null, 4))
-
+*/
 }
 
 main();
