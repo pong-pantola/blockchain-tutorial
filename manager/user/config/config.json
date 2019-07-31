@@ -1,4 +1,4 @@
 {
-  "connectionConfigFilePath": "/home/osboxes/testing/fabric-samples/basic-network/connection.json",
+  "connectionConfigFilePath": "../../network/connection.json",
   "walletDirPath": "../../wallet"
 }

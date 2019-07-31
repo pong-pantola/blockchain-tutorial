@@ -113,7 +113,7 @@ class BlueCoinContract extends Contract {
     if (!Utility.assertMspId(ctx, mspId))
       return shim.error("The parameter mspId should be the same as the caller's mspId: " + Utility.getMspId(ctx));
     
-    const result = Utility.getTransactionHistory(ctx, mspId);
+    const result = await Utility.getTransactionHistory(ctx, mspId);
     console.info('============= END : GET TRANSACTION HISTORY =============');
     return shim.success({"status" :"success","message":"Getting transaction history of " + mspId,"result": result });
   }
