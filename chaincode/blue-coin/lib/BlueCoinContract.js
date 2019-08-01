@@ -14,27 +14,6 @@ class BlueCoinContract extends Contract {
 
   }
 
-  async saveOrg1PrivateData(ctx, data){
-    console.info('============= START : Save Org1 Private Data =============');
-    let json = {
-      data: data
-    }
-    await Utility.putPrivateData(ctx, "org1-collection", "mykey", json)
-    
-    console.info('============= END : Save Org1 Private Data =============');
-  }
-
-  async getOrg1PrivateData(ctx){
-    console.info('============= START : Get Org1 Private Data =============');
-    const json = await Utility.getPrivateData(ctx, "org1-collection", "mykey");
-    if (json == null)
-     return shim.error("Org1 has No private data.")
-
-    console.info('============= END : Get Org1 Private Data =============');    
-
-    return shim.success({status : 200, message:"Private data of org1 retrieved successfully", payload: json});    
-    console.info('============= END : Save Org1 Private Data =============');
-  }
 
   async generateInitialCoin(ctx, mspId) {
     console.info('============= START : Generate Initial Coin =============');
@@ -139,6 +118,30 @@ class BlueCoinContract extends Contract {
     console.info('============= END : GET TRANSACTION HISTORY =============');
     return shim.success({status:200, message: "Getting transaction history of " + mspId, payload: result});
   }
+
+  async saveOrg1PrivateData(ctx, data){
+    console.info('============= START : Save Org1 Private Data =============');
+    let json = {
+      data: data
+    }
+    await Utility.putPrivateData(ctx, "org1-collection", "mykey", json)
+    
+    console.info('============= END : Save Org1 Private Data =============');
+  }
+
+  async getOrg1PrivateData(ctx){
+    console.info('============= START : Get Org1 Private Data =============');
+    const json = await Utility.getPrivateData(ctx, "org1-collection", "mykey");
+    if (json == null)
+     return shim.error("Org1 has No private data.")
+
+    console.info('============= END : Get Org1 Private Data =============');    
+
+    return shim.success({status : 200, message:"Private data of org1 retrieved successfully", payload: json});    
+    console.info('============= END : Save Org1 Private Data =============');
+  }
+  
+
 }
 
 module.exports = BlueCoinContract;

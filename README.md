@@ -45,6 +45,16 @@ docker exec -e "CORE_PEER_LOCALMSPID=Org1MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/g
 
 peer chaincode instantiate -o orderer.example.com:7050 -C mychannel -n blue-coin -l "$CC_RUNTIME_LANGUAGE" -v 1.0 -c '{"Args":["instantiate"]}' -P "OR ('Org1MSP.member','Org2MSP.member')"
 peer chaincode invoke -o orderer.example.com:7050 -C mychannel -n blue-coin -c '{"function":"instantiate","Args":[]}'
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+saveOrg1PrivateData
+docker exec cli0.org1 peer chaincode invoke -o orderer.example.com:7050 -C mychannel -n blue-coin -c '{"function":"saveOrg1PrivateData","Args":["secretofORG1-part2"]}'
+
+docker exec cli0.org1 peer chaincode query -C mychannel -n blue-coin -c '{"function":"getOrg1PrivateData","Args":[]}'
+
+docker exec cli0.org2 peer chaincode invoke -o orderer.example.com:7050 -C mychannel -n blue-coin -c '{"function":"saveOrg1PrivateData","Args":["secretofORG2-part2"]}'
+
+docker exec cli0.org2 peer chaincode query -C mychannel -n blue-coin -c '{"function":"getOrg1PrivateData","Args":[]}'
+
 xxxxxxxxxxxxxxxxxxxxxxxxxxx
 docker exec cli0.org1 peer chaincode invoke -o orderer.example.com:7050 -C mychannel -n blue-coin -c '{"function":"generateInitialCoin","Args":["Org1MSP"]}'
 
