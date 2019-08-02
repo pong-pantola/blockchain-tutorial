@@ -119,19 +119,32 @@ class BlueCoinContract extends Contract {
     return shim.success({status:200, message: "Getting transaction history of " + mspId, payload: result});
   }
 
-  async saveOrg1PrivateData(ctx, data){
+  async saveOrg1PrivateData(ctx, sharedData){
     console.info('============= START : Save Org1 Private Data =============');
-    let json = {
-      data: data
+    let sharedJson = {
+      data: sharedData
     }
-    await Utility.putPrivateData(ctx, "org1-collection", "mykey", json)
+    //https://medium.com/beyondi/private-data-in-hyperledger-fabric-3aaa8a3994ed
+    const secretData = ctx.stub.getTranscient();
+    // convert into buffer
+    var buffer = new Buffer(secretData.map.conversation.value.toArrayBuffer());// from buffer into string
+    var JSONString = buffer.toString("utf8");// from json string into object
+    var JSONObject = JSON.parse(JSONString);
+    console.info("transcient data: "+JSON.stringify(JSONObject, null, 4))
+    let secretJson = {
+      data: JSONObject
+    }
+
+    await Utility.putState(ctx, "org1-shared-data", sharedJson)
+    await Utility.putPrivateData(ctx, "org1-collection", "org1-secret-data", secretJson)
     
     console.info('============= END : Save Org1 Private Data =============');
   }
 
   async getOrg1PrivateData(ctx){
     console.info('============= START : Get Org1 Private Data =============');
-    const json = await Utility.getPrivateData(ctx, "org1-collection", "mykey");
+    const sharedJson = await Utility.getState(ctx, "org1-shared-data");
+    const secretJson = await Utility.getPrivateData(ctx, "org1-collection", "org1-secret-data");
     if (json == null)
      return shim.error("Org1 has No private data.")
 

@@ -9,6 +9,8 @@ set -e
 
 #FABRIC_SAMPLES_HOME=/home/osboxes/testing/fabric-samples
 
+cd ../network
+./generate-and-replace.sh
 # don't rewrite paths for Windows Git Bash users
 export MSYS_NO_PATHCONV=1
 starttime=$(date +%s)
@@ -31,8 +33,7 @@ mkdir ../wallet
 
 # launch network; create channel and join peer to channel
 #cd ../../fabric-samples/basic-network
-cd ../network
-./generate-and-replace.sh
+
 ./start.sh
 
 # Now launch the CLI container in order to install, instantiate chaincode

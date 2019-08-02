@@ -120,9 +120,18 @@ class TransactionManager{
         const transaction = contract.createTransaction(param.funcName);
         //callback should have the following parameters: err, transactionId, status, blockNumber
         const listener = await transaction.addCommitListener(param.callback);
-        response = await transaction.submit(...param.argArr);
-      }else
-        response = await contract.submitTransaction(param.funcName, ...param.argArr);
+
+        if (param.transientMap)
+          response = await transaction.setTransient(param.transientMap).submit(...param.argArr);
+        else
+          response = await transaction.submit(...param.argArr);
+      }else{
+        if (param.transientMap){
+          const transaction = contract.createTransaction(param.funcName);
+          response = await transaction.setTransient(param.transientMap).submit(...param.argArr);
+        }else
+          response = await contract.submitTransaction(param.funcName, ...param.argArr);
+      }
 
       return JSON.parse(response.toString());
     }catch(error){
@@ -210,6 +219,9 @@ async function main(){
     contractName: "blue-coin", 
     funcName: "transferCoin", 
     argArr: ["Org1MSP", "Org2MSP", "1"],
+    transientMap: {
+      secretInfo: "this represents private data"
+    },
     callback: function(err, txId, status, blockNo){
                 if (err)
                   console.err(err);
@@ -219,7 +231,7 @@ async function main(){
   });  
 console.log("response:"+JSON.stringify(response, null, 4));
 
-
+/*
   response = await txMgr.submitTransaction({
       userId: "user1", 
       channelName: "mychannel", 
@@ -229,6 +241,7 @@ console.log("response:"+JSON.stringify(response, null, 4));
     });
 
   console.log("transaction count:"+response.payload.payload.length);
+  */
 /*  
   console.log("response:"+JSON.stringify(response.payload.result[0].TxId, null, 4));
   let txId = response.payload.result[1].TxId;
