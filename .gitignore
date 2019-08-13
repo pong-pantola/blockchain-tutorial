@@ -60,4 +60,7 @@ typings/
 # next.js build output
 .next
 
+wallet/
 network/docker-compose.yml
+network/config
+network/crypto-config

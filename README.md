@@ -1,5 +1,12 @@
 # blockchain-tutorial
 
+if you encounter this error:
+MSBUILD : error MSB4132: The tools version "2.0" is unrecognized. Available tools versions are "4.0".
+
+run this command in Administrator mode:
+npm install --global --production windows-build-tools
+
+
 https://github.com/pong-pantola/blockchain-tutorial.git
 
 curl -sSL http://bit.ly/2ysbOFE | bash -s -- 1.4.0 1.4.0 0.4.15
