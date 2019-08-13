@@ -1,0 +1,4 @@
+{
+  "connectionConfigFilePath": "../../connection-profile/connection-org1.json",
+  "walletDirPath": "../../wallet/org1"
+}

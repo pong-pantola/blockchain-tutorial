@@ -1,29 +1,41 @@
 const UserManager = require("./UserManager.js")
 
-const path = require('path');
-
-const config = require("./config/config.json")
-
-let userMgr = new UserManager(config);
-
-async function enroll(userId, affiliation, role, attrArr){
+async function main(orgIndex, userIndex){
   try{
-    console.log("Registering User "+userId+"...")
-    let userSecret = await userMgr.registerUser(userId, affiliation, role, attrArr, "admin");
-    console.log("User "+userId+" registered successfully.")
-    console.log("Enrolling User "+userId+"...")
-    await userMgr.enrollUser(userId, userSecret, "admin", "Org1MSP");
-    console.log("User "+userId+" enrolled successfully.")
+    const config = require(`./config/config-org${orgIndex}.json`)
+    const userMgr = new UserManager(config);
+
+    const registerParam = {
+      userId: `user${userIndex}`,
+      affiliation: `org${orgIndex}.department1`,
+      role: "client",
+      attrArr: [{ name: "attrA", value: "valA", ecert: true }, { name: "attrB", value: "valB", ecert: true }],
+      adminId: "admin"
+    }
+
+    console.log(`Registering User user${userIndex}... of org${orgIndex}`)
+    let userSecret = await userMgr.registerUser(registerParam);
+    console.log(`User user${userIndex} of org${orgIndex} registered successfully.`)
+
+    const enrollParam = {
+      userId: `user${userIndex}`,
+      userSecret: userSecret,
+      adminId: "admin",
+      mspId: `Org${orgIndex}MSP`
+    }
+
+    console.log(`Enrolling User user${userIndex}... of org${orgIndex}`)
+    await userMgr.enrollUser(enrollParam);
+    console.log(`User user${userIndex} of org${orgIndex} enrolled successfully.`)
+
   }catch(error){
     console.log(error)
   }
 }
 
-async function main(){
-  await enroll("user1", "org1.department1", "client", [{ name: "affiliation", value: "", ecert: true }, { name: "enrollmentID", value: "en1", ecert: true }])
-  await enroll("user2", "org1.department1", "client", [{ name: "affiliation", value: "", ecert: true }, { name: "enrollmentID", value: "en1", ecert: true }])
-  //await enroll("user1", "org2.department1", "client", [{ name: "affiliation", value: "", ecert: true }, { name: "enrollmentID", value: "en1", ecert: true }])
-  //await enroll("user2", "org2.department1", "client", [{ name: "affiliation", value: "", ecert: true }, { name: "enrollmentID", value: "en1", ecert: true }])  
+if (process.argv.length != 4){
+  console.log("Syntax : node enrollUser.js <org index> <user index>")
+  console.log("Example: node enrollUser.js 1 2")
+}else{
+  main(process.argv[2], process.argv[3])
 }
-
-main();

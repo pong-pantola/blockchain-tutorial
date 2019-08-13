@@ -1,10 +1,6 @@
 'use strict';
 
-
-
 const { FileSystemWallet, Gateway } = require('fabric-network');
-
-
 
 class TransactionManager{
 
@@ -14,7 +10,99 @@ class TransactionManager{
     this.connectionConfig = require(this.connectionConfigFilePath);
   }
 
-  async queryTransaction(param){
+  async submitTransaction(param){
+
+    let gateway;
+
+    try{
+
+      // Create a new file system based wallet for managing identities.
+      const wallet = new FileSystemWallet(this.walletDirPath);
+
+      // Check to see if we've already enrolled the user.
+      const userExists = await wallet.exists(param.userId);
+
+      if (!userExists) {
+        throw Error("User " + param.userId + " does not exist in the wallet.");
+      }
+
+      // Create a new gateway for connecting to our peer node.
+      const gateway = new Gateway();
+
+      await gateway.connect(this.connectionConfig, { wallet, identity: param.userId, discovery: { enabled: false } });
+
+      // Get the network (channel) our contract is deployed to.
+      const network = await gateway.getNetwork(param.channelName);
+
+      // Get the contract from the network.
+      const contract = network.getContract(param.contractName);
+
+      let response;
+      if (param.callback){
+        const transaction = contract.createTransaction(param.funcName);
+        //callback should have the following parameters: err, transactionId, status, blockNumber
+        const listener = await transaction.addCommitListener(param.callback);
+
+        if (param.transientMap)
+          response = await transaction.setTransient(param.transientMap).submit(...param.argArr);
+        else
+          response = await transaction.submit(...param.argArr);
+      }else{
+        if (param.transientMap){
+          const transaction = contract.createTransaction(param.funcName);
+          response = await transaction.setTransient(param.transientMap).submit(...param.argArr);
+        }else
+          response = await contract.submitTransaction(param.funcName, ...param.argArr);
+      }
+
+      return JSON.parse(response.toString());
+    }catch(error){
+      throw error;
+    }finally{
+      if (gateway)
+        gateway.disconnect();
+    }
+  }
+
+  async evaluateTransaction(param){
+
+    let gateway;
+
+    try{
+
+      // Create a new file system based wallet for managing identities.
+      const wallet = new FileSystemWallet(this.walletDirPath);
+
+      // Check to see if we've already enrolled the user.
+      const userExists = await wallet.exists(param.userId);
+
+      if (!userExists) {
+        throw Error("User " + param.userId + " does not exist in the wallet.");
+      }
+
+      // Create a new gateway for connecting to our peer node.
+      const gateway = new Gateway();
+
+      await gateway.connect(this.connectionConfig, { wallet, identity: param.userId, discovery: { enabled: false } });
+
+      // Get the network (channel) our contract is deployed to.
+      const network = await gateway.getNetwork(param.channelName);
+
+      // Get the contract from the network.
+      const contract = network.getContract(param.contractName);
+
+      let response = await contract.evaluateTransaction(param.funcName, ...param.argArr);
+
+      return JSON.parse(response.toString());
+    }catch(error){
+      throw error;
+    }finally{
+      if (gateway)
+        gateway.disconnect();
+    }
+  }
+
+  async getTransactionDetail(param){
     let gateway;
 
     try{
@@ -87,67 +175,7 @@ class TransactionManager{
 
     }
   }
-
-  async submitTransaction(param){
-
-    let gateway;
-
-    try{
-
-      // Create a new file system based wallet for managing identities.
-      const wallet = new FileSystemWallet(this.walletDirPath);
-
-      // Check to see if we've already enrolled the user.
-      const userExists = await wallet.exists(param.userId);
-
-      if (!userExists) {
-        throw Error("User " + param.userId + " does not exist in the wallet.");
-      }
-
-      // Create a new gateway for connecting to our peer node.
-      const gateway = new Gateway();
-
-      await gateway.connect(this.connectionConfig, { wallet, identity: param.userId, discovery: { enabled: false } });
-
-      // Get the network (channel) our contract is deployed to.
-      const network = await gateway.getNetwork(param.channelName);
-
-      // Get the contract from the network.
-      const contract = network.getContract(param.contractName);
-
-      let response;
-      if (param.callback){
-        const transaction = contract.createTransaction(param.funcName);
-        //callback should have the following parameters: err, transactionId, status, blockNumber
-        const listener = await transaction.addCommitListener(param.callback);
-
-        if (param.transientMap)
-          response = await transaction.setTransient(param.transientMap).submit(...param.argArr);
-        else
-          response = await transaction.submit(...param.argArr);
-      }else{
-        if (param.transientMap){
-          const transaction = contract.createTransaction(param.funcName);
-          response = await transaction.setTransient(param.transientMap).submit(...param.argArr);
-        }else
-          response = await contract.submitTransaction(param.funcName, ...param.argArr);
-      }
-
-      return JSON.parse(response.toString());
-    }catch(error){
-      throw error;
-    }finally{
-      if (gateway)
-        gateway.disconnect();
-    }
-  }
-
-
 }
-
-
-
-
 
 module.exports = TransactionManager;
 
@@ -257,4 +285,4 @@ console.log("response:"+JSON.stringify(response, null, 4));
 */
 }
 
-main();
+//main();

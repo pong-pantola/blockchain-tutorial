@@ -1,19 +1,28 @@
 const UserManager = require("./UserManager.js")
 
-const path = require('path');
-
-const config = require("./config/config.json")
-
-let userMgr = new UserManager(config);
-
-async function main(){
+async function main(orgIndex){
   try{
-    console.log("Enrolling Administrator admin...")
-    await userMgr.enrollAdmin("admin", "adminpw", "ca1.example.com", "Org1MSP");
-    console.log("Administrator admin enrolled successfully.")
+    const config = require(`./config/config-org${orgIndex}.json`)
+    const userMgr = new UserManager(config);
+
+    const param = {
+      adminId: "admin",
+      adminSecret: "adminpw",
+      caId: `ca${orgIndex}.example.com`,
+      mspId:  `Org${orgIndex}MSP`
+    }
+
+    console.log(`Enrolling Administrator admin of org${orgIndex}...`)
+    await userMgr.enrollAdmin(param);
+    console.log(`Administrator admin of org${orgIndex} enrolled successfully.`)
   }catch(error){
     console.log(error)
   }
 }
 
-main();
+if (process.argv.length != 3){
+  console.log("Syntax : node enrollAdmin.js <org index>")
+  console.log("Example: node enrollAdmin.js 1")
+}else{
+  main(process.argv[2])
+}

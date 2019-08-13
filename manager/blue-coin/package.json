@@ -1,15 +1,11 @@
 {
-  "name": "user",
+  "name": "blue-coin",
   "version": "1.0.0",
   "description": "",
-  "main": "UserManager.js",
+  "main": "BlueCoinManager.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "fabric-ca-client": "^1.4.4",
-    "fabric-network": "^1.4.4"
-  }
+  "license": "ISC"
 }
