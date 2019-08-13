@@ -1,0 +1,15 @@
+{
+  "name": "bluecoin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "fabric-chaincode-node start"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fabric-contract-api": "~1.4.0",
+    "fabric-shim": "~1.4.0"    
+  }
+}
