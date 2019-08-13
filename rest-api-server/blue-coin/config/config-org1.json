@@ -1,0 +1,9 @@
+{
+    "portNo": 8081,
+    "token": {
+        "secretKey": "abc123",
+        "expiration": 40
+    },
+    "connectionConfigFilePath": "../../connection-profile/connection-org1.json",
+    "walletDirPath": "../../wallet/org1"
+}
