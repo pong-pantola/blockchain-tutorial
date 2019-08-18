@@ -15,9 +15,6 @@ class BlueCoinContract extends Contract {
   async generateInitialCoin(ctx, mspId) {
     console.info('============= START : Generate Initial Coin =============');
 
-    if (!Utility.assertMspId(ctx, mspId))
-      throw new Error("The parameter mspId should be the same as the caller's mspId: " + Utility.getMspId(ctx));
-
     let json = await Utility.getState(ctx, mspId);
   
     //check if organization has already generated blue coins before
@@ -38,9 +35,6 @@ class BlueCoinContract extends Contract {
   async getBalance(ctx, mspId) {
     console.info('============= START : Get Balance =============');    
 
-    if (!Utility.assertMspId(ctx, mspId))
-      throw new Error("The parameter mspId should be the same as the caller's mspId: " + Utility.getMspId(ctx));
-
     const json = await Utility.getState(ctx, mspId);
 
     if (json == null)
@@ -53,10 +47,6 @@ class BlueCoinContract extends Contract {
 
   async transferCoin(ctx, srcMspId, dstMspId, amount){
     console.info('============= START : TRANSFER COIN =============');
-
-    if (!Utility.assertMspId(ctx, srcMspId))
-      throw new Error("The parameter srcMspId should be the same as the caller's mspId: " + Utility.getMspId(ctx));
-
 
     const srcBCOINJson = await Utility.getState(ctx, srcMspId);
     if (srcBCOINJson == null)
@@ -99,9 +89,6 @@ class BlueCoinContract extends Contract {
   async getTransactionHistory(ctx, mspId){
     console.info('============= START : GET TRANSACTION HISTORY =============');
 
-    if (!Utility.assertMspId(ctx, mspId))
-      throw new Error("The parameter mspId should be the same as the caller's mspId: " + Utility.getMspId(ctx));
-    
     const result = await Utility.getTransactionHistory(ctx, mspId);
     console.info('============= END : GET TRANSACTION HISTORY =============');
     return {status:200, message: "Getting transaction history of " + mspId, payload: result};

@@ -1,4 +1,6 @@
 'use strict';
+process.env.HFC_LOGGING='{}'
+//process.env.HFC_LOGGING='{"info":"console"}'
 
 const { FileSystemWallet, Gateway } = require('fabric-network');
 
@@ -23,7 +25,7 @@ class TransactionManager{
       const userExists = await wallet.exists(param.userId);
 
       if (!userExists) {
-        throw Error("User " + param.userId + " does not exist in the wallet.");
+        return {status: 500, message: "User " + param.userId + " does not exist in the wallet."};
       }
 
       // Create a new gateway for connecting to our peer node.
@@ -57,7 +59,7 @@ class TransactionManager{
 
       return JSON.parse(response.toString());
     }catch(error){
-      throw error;
+      return {status: 500, message: error.toString()};
     }finally{
       if (gateway)
         gateway.disconnect();
@@ -77,7 +79,7 @@ class TransactionManager{
       const userExists = await wallet.exists(param.userId);
 
       if (!userExists) {
-        throw Error("User " + param.userId + " does not exist in the wallet.");
+        return {status: 500, message: "User " + param.userId + " does not exist in the wallet."};
       }
 
       // Create a new gateway for connecting to our peer node.
@@ -95,7 +97,7 @@ class TransactionManager{
 
       return JSON.parse(response.toString());
     }catch(error){
-      throw error;
+      return {status: 500, message: error.toString()};
     }finally{
       if (gateway)
         gateway.disconnect();
@@ -113,7 +115,7 @@ class TransactionManager{
       const userExists = await wallet.exists(param.userId);
 
       if (!userExists) {
-        throw Error("User " + param.userId + " does not exist in the wallet.");
+        return {status: 500, message: "User " + param.userId + " does not exist in the wallet."};
       }
 
       // Create a new gateway for connecting to our peer node.
@@ -138,7 +140,7 @@ class TransactionManager{
           this.connectionConfig.peers[param.peerName].url)
         peerUrl = this.connectionConfig.peers[param.peerName].url;
       else
-        throw Error("Cannot find URL of peer " + param.peerName + " in connection profile.");
+        return {status: 500, message: "Cannot find URL of peer " + param.peerName + " in connection profile."};
 
       const peer = client.newPeer(peerUrl);
       const channel = client.newChannel(param.channelName);
@@ -165,7 +167,7 @@ class TransactionManager{
     
       return detail;
     }catch(error){
-      throw error;
+      return {status: 500, message: error.toString()};
 
     }finally{
 

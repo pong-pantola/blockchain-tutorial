@@ -9,6 +9,7 @@ async function generateInitialCoin(txMgr, argArr, userId, callback){
     argArr: argArr,
     callback: callback
   }
+  
   const response = await txMgr.submitTransaction(param)
 
   return response

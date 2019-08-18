@@ -62,7 +62,8 @@ class BlueCoinManager{
       argArr: argArr
     }
     const response = await this.txMgr.evaluateTransaction(param)
-    const payloadArr = response.payload.payload
+
+    const payloadArr = response.payload
 
     let response2Arr = []
     for(let payload of payloadArr){

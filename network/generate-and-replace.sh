@@ -153,3 +153,6 @@ CHANNEL_NAME="mychannel"
   fi
   echo
 
+echo Blockchain artifacts are generated and saved in config folder.
+echo Certificates and private keys are generated and saved in crypto-config folder.
+echo Docker compose file docker-compose.yml is generated.
