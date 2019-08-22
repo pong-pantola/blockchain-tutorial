@@ -21,7 +21,6 @@ class BlueCoinContract extends Contract {
       throw new Error("The parameter mspId should be the same as the caller's mspId: " + Utility.getMspId(ctx));
 
     let key = mspId + '-initial';
-    console.log("key value " +key);
     let json = await Utility.getState(ctx, key);
   
     //check if organization has already generated blue coins before
@@ -46,16 +45,39 @@ class BlueCoinContract extends Contract {
     if (!Utility.assertMspId(ctx, mspId))
       throw new Error("The parameter mspId should be the same as the caller's mspId: " + Utility.getMspId(ctx));
 
-    let cid = new ClientIdentity(ctx.stub);
-   
-    const json = await Utility.getState(ctx, mspId);
- 
+    let key = mspId + '-initial';
+    let json = await Utility.getState(ctx, key);
+    
+    //checking if organization is already in the system
     if (json == null)
-     throw new Error("Organization " + mspId + " has no record in the system.  Run generateInitialCoin first to get initial coins.")
+      throw new Error("Organization " + mspId + " has no record in the system.  Run generateInitialCoin first to get initial coins.")
+  
+    const jsonQuerySrc = {
+      "selector": {
+        "$and": [
+          {
+              "mspId": {"$eq": mspId}
+          },
+          {
+              "spent": {"$eq": false}
+          }
+        ]
+      }
+    }
+
+    let queryResultSrc = await Utility.getQueryResult(ctx, jsonQuerySrc);
+    var totalBalance = 0;
+    if(queryResultSrc.length > 0){
+      for (let element of queryResultSrc){
+        if (element.Record.amt > 0)
+          totalBalance += parseInt(element.Record.amt);
+      }
+    }else
+      throw new Error(mspId + " has NO available balance.");
 
     console.info('============= END : Get Balance =============');    
 
-    return {"status" : 200, "message" : "Balance retrieved successfully", "payload" : json};
+    return {"status" : 200, "message" : "Total Balance retrieved successfully for " + mspId + " : " + totalBalance};
   }  
 
   async transferCoin(ctx, srcMspId, dstMspId, serialNo, amount){
@@ -69,9 +91,6 @@ class BlueCoinContract extends Contract {
           "$and": [
             {
                 "mspId": {"$eq": srcMspId}
-            },
-            {
-                "amt": {"$gt": 0}
             },
             {
                 "spent": {"$eq": false}
@@ -105,13 +124,14 @@ class BlueCoinContract extends Contract {
             amtTrans = Math.abs(amtTrans);
           }else{
             done = true;
-            let changeFrmKey = srcMspId + '-change-from-' + dstMspId + '-' + serialNo;
-            const srcJson = await Utility.getState(ctx, changeFrmKey);
-            if (srcJson == null)
-              await Utility.putState(ctx, changeFrmKey,{mspId: srcMspId, amt: amtTrans,spent: false});
-            else
-              throw new Error("Record already exist: " + changeFrmKey);
-
+            if (amtTrans > 0){
+              let changeFrmKey = srcMspId + '-change-from-' + dstMspId + '-' + serialNo;
+              const srcJson = await Utility.getState(ctx, changeFrmKey);
+              if (srcJson == null)
+                await Utility.putState(ctx, changeFrmKey,{mspId: srcMspId, amt: amtTrans,spent: false});
+              else
+                throw new Error("Record already exist: " + changeFrmKey);
+            }
             let frmKey = dstMspId + '-from-' + srcMspId + '-' + serialNo;
             const dstJson = await Utility.getState(ctx, frmKey);
             if (dstJson == null)
@@ -167,44 +187,11 @@ class BlueCoinContract extends Contract {
     if (!Utility.assertMspId(ctx, mspId))
       throw new Error("The parameter mspId should be the same as the caller's mspId: " + Utility.getMspId(ctx));
     
-    const result = await Utility.getTransactionHistory(ctx, mspId);
+    let result = {}
+    //insert code here
+
     console.info('============= END : GET TRANSACTION HISTORY =============');
     return {"status" : 200, "message" : "Getting transaction history of " + mspId, "payload" : result};
-  }
-
-  async saveOrg1PrivateData(ctx, sharedData){
-    console.info('============= START : Save Org1 Private Data =============');
-    let sharedJson = {
-      data: sharedData
-    }
-    //https://medium.com/beyondi/private-data-in-hyperledger-fabric-3aaa8a3994ed
-    const secretData = ctx.stub.getTranscient();
-    // convert into buffer
-    var buffer = new Buffer(secretData.map.conversation.value.toArrayBuffer());// from buffer into string
-    var JSONString = buffer.toString("utf8");// from json string into object
-    var JSONObject = JSON.parse(JSONString);
-    console.info("transcient data: "+JSON.stringify(JSONObject, null, 4))
-    let secretJson = {
-      data: JSONObject
-    }
-
-    await Utility.putState(ctx, "org1-shared-data", sharedJson)
-    await Utility.putPrivateData(ctx, "org1-collection", "org1-secret-data", secretJson)
-    
-    console.info('============= END : Save Org1 Private Data =============');
-  }
-
-  async getOrg1PrivateData(ctx){
-    console.info('============= START : Get Org1 Private Data =============');
-    const sharedJson = await Utility.getState(ctx, "org1-shared-data");
-    const secretJson = await Utility.getPrivateData(ctx, "org1-collection", "org1-secret-data");
-    if (json == null)
-       throw new Error("Org1 has No private data.");
-
-    console.info('============= END : Get Org1 Private Data =============');    
-
-    return {"status" : 200, "message" : "Private data of org1 retrieved successfully", "payload" : json};    
-    console.info('============= END : Save Org1 Private Data =============');
   }
 }
 
