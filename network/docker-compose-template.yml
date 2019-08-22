@@ -290,7 +290,6 @@ services:
     networks:
       - basic
 
-
   cli0.org1:
     container_name: cli0.org1
     image: hyperledger/fabric-tools
@@ -309,14 +308,11 @@ services:
     volumes:
         - /var/run/:/host/var/run/
         - ./../chaincode/:/opt/gopath/src/github.com/
+        - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+        - ./config:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
         - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
     networks:
         - basic
-    #depends_on:
-    #  - orderer.example.com
-    #  - peer0.org1.example.com
-    #  - couchdb
-
 
   cli1.org1:
     container_name: cli1.org1
@@ -336,11 +332,11 @@ services:
     volumes:
         - /var/run/:/host/var/run/
         - ./../chaincode/:/opt/gopath/src/github.com/
+        - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+        - ./config:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
         - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
     networks:
         - basic
-
-
 
   cli0.org2:
     container_name: cli0.org2
@@ -360,6 +356,8 @@ services:
     volumes:
         - /var/run/:/host/var/run/
         - ./../chaincode/:/opt/gopath/src/github.com/
+        - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+        - ./config:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
         - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
     networks:
         - basic
@@ -382,6 +380,8 @@ services:
     volumes:
         - /var/run/:/host/var/run/
         - ./../chaincode/:/opt/gopath/src/github.com/
+        - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+        - ./config:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
         - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
     networks:
         - basic

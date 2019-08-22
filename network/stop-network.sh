@@ -33,5 +33,8 @@ echo Removing certificats and private keys...
 rm -r -f crypto-config
 mkdir crypto-config
 
+rm -r -f org3-artifacts/crypto-config
+mkdir org3-artifacts/crypto-config
+
 echo
 echo Blockchain network is stopped.

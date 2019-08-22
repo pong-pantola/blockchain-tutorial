@@ -7,8 +7,21 @@ class BlueCoinContract extends Contract {
 
   async init(ctx){
     console.info('============= START : Init =============');
+    let json = await Utility.getState(ctx, "initMarker");
+    
+    if (json != null)
+      throw new Error("Function init can only be called once.")    
+
+    //place needed world state initialization here  
+
+    json = {
+      marker: "init"
+    }
+
+    await Utility.putState(ctx, "initMarker", json);
 
     console.info('============= END : Init =============');
+    return {status: 200, message:"Successfully initialized world state", payload: json };        
   }
 
 

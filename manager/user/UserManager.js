@@ -2,8 +2,6 @@
 
 const FabricCAServices = require('fabric-ca-client')
 const { FileSystemWallet, X509WalletMixin, Gateway } = require('fabric-network')
-const fs = require('fs')
-const path = require('path')
 
 class UserManager{
   constructor(config){
@@ -41,7 +39,7 @@ class UserManager{
       const adminIdentity = gateway.getCurrentIdentity()
 
       // Register the user, enroll the user, and import the new identity into the wallet.
-      const userSecret = await ca.register({ affiliation: param.affiliation, enrollmentID: param.userId, role: param.role, attrs: param.attrArr}, adminIdentity)
+      const userSecret = await ca.register({ enrollmentID: param.userId, role: param.role, attrs: param.attrArr}, adminIdentity)
 
       return userSecret
     }catch(error){
@@ -52,7 +50,6 @@ class UserManager{
     }
   }
 
-  //async enrollUser(userId, userSecret, adminId, mspId){
   async enrollUser(param){    
     let gateway
     try{

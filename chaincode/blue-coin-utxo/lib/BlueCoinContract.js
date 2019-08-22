@@ -1,7 +1,7 @@
 'use strict';
 
 const { Contract } = require('fabric-contract-api');
-const shim = require('fabric-shim');
+//const shim = require('fabric-shim');
 const ClientIdentity = require('fabric-shim').ClientIdentity;
 const Utility = require("./Utility.js");
 
@@ -14,109 +14,162 @@ class BlueCoinContract extends Contract {
 
   }
 
-
   async generateInitialCoin(ctx, mspId) {
     console.info('============= START : Generate Initial Coin =============');
 
     if (!Utility.assertMspId(ctx, mspId))
-      return shim.error("The parameter mspId should be the same as the caller's mspId: " + Utility.getMspId(ctx));
+      throw new Error("The parameter mspId should be the same as the caller's mspId: " + Utility.getMspId(ctx));
 
-    let json = await Utility.getState(ctx, mspId);
+    let key = mspId + '-initial';
+    console.log("key value " +key);
+    let json = await Utility.getState(ctx, key);
   
     //check if organization has already generated blue coins before
     if (json != null)
-      return shim.error("Organization " + mspId + " has generated already initial blue coins before.  Organization can generate blue coins only once.")
+      throw new Error("Organization " + mspId + " has generated already initial blue coins before.  Organization can generate blue coins only once.")
 
     json = {
       mspId: mspId,
-      amt: 500
+      amt: 500,
+      spent: false
     }
 
-    await Utility.putState(ctx, mspId, json);
+    await Utility.putState(ctx, key, json);
 
     console.info('============= END : Generate Initial Coin =============');
-    return shim.success({status: 200, message:"Successfully generated blue coins", payload: json });
+    return {"status" : 200, "message" : "Successfully generated blue coins", "payload" : json };
   }
 
   async getBalance(ctx, mspId) {
     console.info('============= START : Get Balance =============');    
 
     if (!Utility.assertMspId(ctx, mspId))
-      return shim.error("The parameter mspId should be the same as the caller's mspId: " + Utility.getMspId(ctx));
+      throw new Error("The parameter mspId should be the same as the caller's mspId: " + Utility.getMspId(ctx));
 
     let cid = new ClientIdentity(ctx.stub);
-    console.log("getID():"+cid.getID())
-    console.log("getMSPID():"+cid.getMSPID())
-    console.log("getAttributeValue('role'):"+cid.getAttributeValue('role'))
-    console.log("getAttributeValue('affiliation'):"+cid.getAttributeValue('affiliation'))
-    console.log("getAttributeValue('enrollmentID'):"+cid.getAttributeValue('enrollmentID'))
-
-    
+   
     const json = await Utility.getState(ctx, mspId);
  
-
     if (json == null)
-     return shim.error("Organization " + mspId + " has no record in the system.  Run generateInitialCoin first to get initial coins.")
+     throw new Error("Organization " + mspId + " has no record in the system.  Run generateInitialCoin first to get initial coins.")
 
     console.info('============= END : Get Balance =============');    
 
-    return shim.success({status : 200, message:"Balance retrieved successfully", payload: json});
+    return {"status" : 200, "message" : "Balance retrieved successfully", "payload" : json};
   }  
 
-  async transferCoin(ctx, srcMspId, dstMspId, amount){
+  async transferCoin(ctx, srcMspId, dstMspId, serialNo, amount){
     console.info('============= START : TRANSFER COIN =============');
-
+    var amtTrans = 0;
     if (!Utility.assertMspId(ctx, srcMspId))
-      return shim.error("The parameter srcMspId should be the same as the caller's mspId: " + Utility.getMspId(ctx));
+      throw new Error("The parameter srcMspId should be the same as the caller's mspId: " + Utility.getMspId(ctx));
 
-
-    const srcBCOINJson = await Utility.getState(ctx, srcMspId);
-    if (srcBCOINJson == null)
-      return shim.error("Source mspId does not exist: " + srcMspId);
-
-    const dstBCOINJson = await Utility.getState(ctx, dstMspId);
-    if (dstBCOINJson == null)
-      return shim.error("Destination mspId does not exist: " + dstMspId);
-
-    if (srcBCOINJson.amt >= amount) {
-      srcBCOINJson.amt -= parseInt(amount);
-      dstBCOINJson.amt += parseInt(amount);
- 
-      await Utility.putState(ctx, srcMspId, srcBCOINJson);
-      await Utility.putState(ctx, dstMspId, dstBCOINJson);
-    }else{
-      return shim.error("Insufficient fund for Source MspId: " + srcMspId + '; ' + "Available balance: " + srcBCOINJson.amt + '; ' + "Amount to Transfer: " + amount)
+    const jsonQuerySrc = {
+        "selector": {
+          "$and": [
+            {
+                "mspId": {"$eq": srcMspId}
+            },
+            {
+                "amt": {"$gt": 0}
+            },
+            {
+                "spent": {"$eq": false}
+            }
+          ]
+        }
     }
 
-    console.info('============= END : TRANSFER COIN =============');
-    return shim.success({status : 200, message:"Transferred successfully the amount of " + amount + " blue coins from " + srcMspId + " to " + dstMspId, payload: {}});
-  }
+    amtTrans = parseInt(amount);
+    var totBalance = 0;
+    let done = false;
+    let queryResultSrc = await Utility.getQueryResult(ctx, jsonQuerySrc);
+    if(queryResultSrc.length > 0){
+      for (let element of queryResultSrc){
+        if(!done){
+          var amtTemp = 0;
+          if (parseInt(amount) <= 0)
+            throw new Error("Transfer Amount should be greater than 0.");
 
+          totBalance += parseInt(element.Record.amt);
+          element.Record.amt -= amtTrans;
+          amtTrans = element.Record.amt;
+          amtTemp = element.Record.amt;
+
+          var key = element.Key;
+          var srcBCOINJson = await Utility.getState(ctx, key);
+          srcBCOINJson.spent = true;
+          await Utility.putState(ctx, key, srcBCOINJson);
+          
+          if (amtTrans < 0){
+            amtTrans = Math.abs(amtTrans);
+          }else{
+            done = true;
+            let changeFrmKey = srcMspId + '-change-from-' + dstMspId + '-' + serialNo;
+            const srcJson = await Utility.getState(ctx, changeFrmKey);
+            if (srcJson == null)
+              await Utility.putState(ctx, changeFrmKey,{mspId: srcMspId, amt: amtTrans,spent: false});
+            else
+              throw new Error("Record already exist: " + changeFrmKey);
+
+            let frmKey = dstMspId + '-from-' + srcMspId + '-' + serialNo;
+            const dstJson = await Utility.getState(ctx, frmKey);
+            if (dstJson == null)
+              await Utility.putState(ctx, frmKey,{mspId: dstMspId, amt: amount,spent: false});
+            else
+              throw new Error("Record already exist: " + frmKey);
+          }
+        }
+      }
+    }else
+      throw new Error(srcMspId + ' no available amount to transfer.');
+
+    if (amtTemp < 0){
+      throw new Error("Insufficient fund for Source MspId: " + srcMspId + '; ' + "Available balance: " + totBalance + '; ' + "Amount to Transfer: " + amount);
+    }
+    console.info('============= END : TRANSFER COIN =============');
+    return {"status" : 200, "message" : "Transferred successfully the amount of " + amount + " blue coins from " + srcMspId + " to " + dstMspId, "payload" : ""};
+  }
 
   async getAllAbove(ctx, val) {
     console.info('============= START : GET ALL ABOVE =============');
 
     const jsonQuery = {
       "selector": {
-        "amt": {"$gt": parseInt(val)}  
+        "mspId": {"$gt": parseInt(val)}  
       }
     }
 
     let queryResult = await Utility.getQueryResult(ctx, jsonQuery);
 
     console.info('============= END : GET ALL ABOVE =============');    
-    return shim.success({status: 200, message: "Getting records above " + val + " blue coin",payload: queryResult});
+    return {"status" : 200, "message" : "Getting records above " + val + " blue coin", "payload" : queryResult};
+  }
+
+  async getRecords(ctx, mspId) {
+    console.info('============= START : GET ALL ABOVE =============');
+
+    const jsonQuery = {
+      "selector": {
+        "mspId": mspId
+      }
+    }
+
+    let queryResult = await Utility.getQueryResult(ctx, jsonQuery);
+
+    console.info('============= END : GET ALL ABOVE =============');    
+    return {"status" : 200, "message" : "Getting records of " + mspId + " blue coin", "payload" : queryResult};
   }
 
   async getTransactionHistory(ctx, mspId){
     console.info('============= START : GET TRANSACTION HISTORY =============');
 
     if (!Utility.assertMspId(ctx, mspId))
-      return shim.error("The parameter mspId should be the same as the caller's mspId: " + Utility.getMspId(ctx));
+      throw new Error("The parameter mspId should be the same as the caller's mspId: " + Utility.getMspId(ctx));
     
     const result = await Utility.getTransactionHistory(ctx, mspId);
     console.info('============= END : GET TRANSACTION HISTORY =============');
-    return shim.success({status:200, message: "Getting transaction history of " + mspId, payload: result});
+    return {"status" : 200, "message" : "Getting transaction history of " + mspId, "payload" : result};
   }
 
   async saveOrg1PrivateData(ctx, sharedData){
@@ -146,15 +199,13 @@ class BlueCoinContract extends Contract {
     const sharedJson = await Utility.getState(ctx, "org1-shared-data");
     const secretJson = await Utility.getPrivateData(ctx, "org1-collection", "org1-secret-data");
     if (json == null)
-     return shim.error("Org1 has No private data.")
+       throw new Error("Org1 has No private data.");
 
     console.info('============= END : Get Org1 Private Data =============');    
 
-    return shim.success({status : 200, message:"Private data of org1 retrieved successfully", payload: json});    
+    return {"status" : 200, "message" : "Private data of org1 retrieved successfully", "payload" : json};    
     console.info('============= END : Save Org1 Private Data =============');
   }
-  
-
 }
 
 module.exports = BlueCoinContract;
