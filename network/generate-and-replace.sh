@@ -167,3 +167,4 @@ CHANNEL_NAME="mychannel"
   fi
   echo
 
+echo Artifacts, certificates, private keys, and docker-compose.yml file are generated.

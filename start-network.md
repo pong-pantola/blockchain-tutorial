@@ -43,17 +43,21 @@ Instead of moving from one subfolder to another, we will  just open several term
     network>
     ````
 
-1. Open the terminals for the other subfolders.  To do this, follow the steps above.  However, instead of going to the `network` subfolder, go to the respective subfolders of each terminal.
+1. Throughout this training, you need to open the terminals for the other subfolders.  To do this, follow the steps above.  However, instead of going to the `network` subfolder, go to the respective subfolders of each terminal.
 
     Please refer to the information below regarding the details of each terminal.
+
+    Note that you DO NOT need to open NOW all the terminals listed below.  You can just open the terminals as needed.
 
     | Terminal Name             | Command                        | Prompt     |
     |---------------------------|--------------------------------|------------|
     | network                   | `cd network`                   | network>   |
     | wallet                    | `cd wallet`                    | wallet>    |
     | chaincode                 | `cd chaincode`                 | chaincode> |
-    | blue coin client          | `cd client /blue-coin`         | bc-client> |
-    | blue coin UTXO client     | `cd client /blue-coin-utxo`    | bc-utxo-client> |
+    | user manager              | `cd manager/user`              | user-mgr>  |
+    | transaction manager       | `cd manager/transaction`       | tx-mgr>    |
+    | blue coin client          | `cd client/blue-coin`          | bc-client> |
+    | blue coin UTXO client     | `cd client/blue-coin-utxo`     | bc-utxo-client> |
     | blue coin REST API server | `cd rest-api-server/blue-coin` | bc-rest>   |
 
 
@@ -67,6 +71,14 @@ Just in case you have run this tutorial before, this will remove any running doc
     network> ./stop-network.sh
     ````
 
+    **Expected Output:**
+
+    ````
+    :
+    :
+    Blockchain network is stopped.
+    ````
+
     The `stop-network.sh` script stops all docker containers.  In addition, it removes all blockchain artifacts, certificates and private keys.
 
 1. Confirm that there are no running docker containers.
@@ -75,16 +87,32 @@ Just in case you have run this tutorial before, this will remove any running doc
     network> docker ps
     ````
 
+    **Expected Output:**
+
+    ````
+    CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+    ````
+
 1. Confirm that the the subfolder `config`, which will contain the blockchain artifacts, is empty.
 
     ````
     network> ls config
     ````
 
+    **Expected Output:**
+
+    ````
+    ````    
+
 1. Confirm that the the subfolder `crypto-config`, which will contain the certificates and private keys, is empty.
 
     ````
     network> ls crypto-config
+    ````
+
+    **Expected Output:**
+
+    ````
     ````
 
 1. Ensure that there are no wallet contents.
@@ -93,12 +121,23 @@ Just in case you have run this tutorial before, this will remove any running doc
     wallet> ./clear-wallet.sh
     ````
 
+    **Expected Output:**
+
+    ````
+    Wallet is cleared.
+    ````
+
 1. Confirm that the `wallet` subfolder contains no subfolder like `org1`, `org2`, etc.
 
     ````
     wallet> ls
     ````
 
+    **Expected Output:**
+
+    ````
+    clear-wallet.sh
+    ````
 
 ## Starting the Blockchain Setup
 
@@ -114,11 +153,29 @@ Lastly, it starts the necessary docker containers to start a blockchain network.
     network> ./generate-and-replace.sh
     ````
 
+    **Expected Output:**
+
+    ````
+    :
+    :
+    Artifacts, certificates, private keys, and docker-compose.yml file are generated.
+    ````
+
 1. Confirm that the the subfolders `config` and `crypto-config` are not anymore empty.
 
     ````
     network> ls config
     network> ls crypto-config
+    ````
+
+    **Expected Output:**
+
+    ````
+    channel.tx  genesis.block  Org1MSPanchors.tx  Org2MSPanchors.tx
+    ````
+
+    ````
+    ordererOrganizations  peerOrganizations
     ````
 
 1. Confirm that there is a `docker-compose.yml` file.
@@ -127,10 +184,24 @@ Lastly, it starts the necessary docker containers to start a blockchain network.
     network> ls docker-compose.yml
     ````
 
+    **Expected Output:**
+
+    ````
+    docker-compose.yml
+    ````
+
 1. Start the blockchain network.
 
     ````
     network> ./start-network.sh
+    ````
+
+    **Expected Output:**
+
+    ````
+    :
+    :
+    Blockchain network is started.
     ````
 
 1. Confirm that the necessary docker containers are up.
@@ -138,6 +209,48 @@ Lastly, it starts the necessary docker containers to start a blockchain network.
     ````
     network> docker ps
     ````
+
+    **Expected Output:**
+
+    ````
+    CONTAINER ID        IMAGE                        COMMAND                  CREATED              STATUS              PORTS                                              NAMES
+    6c3c1f8ef883        hyperledger/fabric-peer      "peer node start"        About a minute ago   Up About a minute   0.0.0.0:10051->7051/tcp, 0.0.0.0:10053->7053/tcp   peer1.org2.example.com
+    a5a027b16ab2        hyperledger/fabric-peer      "peer node start"        About a minute ago   Up About a minute   0.0.0.0:7051->7051/tcp, 0.0.0.0:7053->7053/tcp     peer0.org1.example.com
+    1e69ae7ca977        hyperledger/fabric-peer      "peer node start"        About a minute ago   Up About a minute   0.0.0.0:9051->7051/tcp, 0.0.0.0:9053->7053/tcp     peer0.org2.example.com
+    aab89fa9bef2        hyperledger/fabric-peer      "peer node start"        About a minute ago   Up About a minute   0.0.0.0:8051->7051/tcp, 0.0.0.0:8053->7053/tcp     peer1.org1.example.com
+    bd5be3ab6456        hyperledger/fabric-couchdb   "tini -- /docker-ent…"   About a minute ago   Up About a minute   4369/tcp, 9100/tcp, 0.0.0.0:8984->5984/tcp         couchdb1.org2
+    673fad5128f8        hyperledger/fabric-orderer   "orderer"                About a minute ago   Up About a minute   0.0.0.0:7050->7050/tcp                             orderer.example.com
+    22c71d61c365        hyperledger/fabric-ca        "sh -c 'fabric-ca-se…"   About a minute ago   Up About a minute   0.0.0.0:7054->7054/tcp                             ca1.example.com
+    d68da73af49b        hyperledger/fabric-ca        "sh -c 'fabric-ca-se…"   About a minute ago   Up About a minute   0.0.0.0:8054->7054/tcp                             ca2.example.com
+    57afeeff4a4f        hyperledger/fabric-couchdb   "tini -- /docker-ent…"   About a minute ago   Up About a minute   4369/tcp, 9100/tcp, 0.0.0.0:7984->5984/tcp         couchdb0.org2
+    b11df4aeb9ec        hyperledger/fabric-couchdb   "tini -- /docker-ent…"   About a minute ago   Up About a minute   4369/tcp, 9100/tcp, 0.0.0.0:5984->5984/tcp         couchdb0.org1
+    a97d23066f22        hyperledger/fabric-couchdb   "tini -- /docker-ent…"   About a minute ago   Up About a minute   4369/tcp, 9100/tcp, 0.0.0.0:6984->5984/tcp         couchdb1.org1
+    ````
+
+    Depending on the width of your `Git Bash` terminal, the output may be cluttered due to the length of information displayed.
+
+1. Limit the information displayed by the docker command to make the output more readable.
+
+    ````
+    network> docker ps --format "table {{.Ports}}\t{{.Names}}"
+    ````
+
+    **Expected Output:**
+
+    ````
+    PORTS                                              NAMES
+    0.0.0.0:10051->7051/tcp, 0.0.0.0:10053->7053/tcp   peer1.org2.example.com
+    0.0.0.0:7051->7051/tcp, 0.0.0.0:7053->7053/tcp     peer0.org1.example.com
+    0.0.0.0:9051->7051/tcp, 0.0.0.0:9053->7053/tcp     peer0.org2.example.com
+    0.0.0.0:8051->7051/tcp, 0.0.0.0:8053->7053/tcp     peer1.org1.example.com
+    4369/tcp, 9100/tcp, 0.0.0.0:8984->5984/tcp         couchdb1.org2
+    0.0.0.0:7050->7050/tcp                             orderer.example.com
+    0.0.0.0:7054->7054/tcp                             ca1.example.com
+    0.0.0.0:8054->7054/tcp                             ca2.example.com
+    4369/tcp, 9100/tcp, 0.0.0.0:7984->5984/tcp         couchdb0.org2
+    4369/tcp, 9100/tcp, 0.0.0.0:5984->5984/tcp         couchdb0.org1
+    4369/tcp, 9100/tcp, 0.0.0.0:6984->5984/tcp         couchdb1.org1
+    ````    
 
     The following docker containers should be up:
     * Orderer
@@ -167,10 +280,43 @@ Lastly, it starts the necessary docker containers to start a blockchain network.
     network> ./start-cli.sh
     ````
 
+    **Expected Output:**
+
+    ````
+    :
+    :
+    Creating cli0.org1 ... done
+    Creating cli1.org1 ... done
+    Creating cli0.org2 ... done
+    Creating cli1.org2 ... done
+    CLI for peers are up.
+    ````
+
 1. Confirm that the necessary docker containers are up.
 
     ````
-    network> docker ps
+    network> docker ps --format "table {{.Ports}}\t{{.Names}}"
+    ````
+
+    **Expected Output:**
+
+    ````
+    PORTS                                              NAMES
+                                                    cli1.org2
+                                                    cli0.org2
+                                                    cli1.org1
+                                                    cli0.org1
+    0.0.0.0:10051->7051/tcp, 0.0.0.0:10053->7053/tcp   peer1.org2.example.com
+    0.0.0.0:7051->7051/tcp, 0.0.0.0:7053->7053/tcp     peer0.org1.example.com
+    0.0.0.0:9051->7051/tcp, 0.0.0.0:9053->7053/tcp     peer0.org2.example.com
+    0.0.0.0:8051->7051/tcp, 0.0.0.0:8053->7053/tcp     peer1.org1.example.com
+    4369/tcp, 9100/tcp, 0.0.0.0:8984->5984/tcp         couchdb1.org2
+    0.0.0.0:7050->7050/tcp                             orderer.example.com
+    0.0.0.0:7054->7054/tcp                             ca1.example.com
+    0.0.0.0:8054->7054/tcp                             ca2.example.com
+    4369/tcp, 9100/tcp, 0.0.0.0:7984->5984/tcp         couchdb0.org2
+    4369/tcp, 9100/tcp, 0.0.0.0:5984->5984/tcp         couchdb0.org1
+    4369/tcp, 9100/tcp, 0.0.0.0:6984->5984/tcp         couchdb1.org1    
     ````
 
     The following additional docker containers should be up:
@@ -191,7 +337,14 @@ Lastly, it starts the necessary docker containers to start a blockchain network.
     ````
     chaincode> ls
     ````
-    
+
+    **Expected Output:**
+
+    ````
+    blue-coin         blue-coin-utxo  install-chaincode.sh      quick-extended-setup.sh  upgrade-chaincode.sh
+    blue-coin-no-acl  hyperledger     instantiate-chaincode.sh  quick-setup.sh           view-chaincode-logs.sh
+    ```` 
+
     Notice that there are three (3) subfolders:
 
     * `blue-coin-no-acl`
@@ -207,7 +360,32 @@ Lastly, it starts the necessary docker containers to start a blockchain network.
     chaincode> ./install-chaincode.sh 1 1 blue-coin-no-acl blue-coin 1.0
     chaincode> ./install-chaincode.sh 2 0 blue-coin-no-acl blue-coin 1.0
     chaincode> ./install-chaincode.sh 2 1 blue-coin-no-acl blue-coin 1.0
+    ````
 
+    **Expected Output:**
+
+    ````
+    :
+    :
+    Installation of chaincode blue-coin 1.0 TO peer0 of org1 is complete.
+    ````
+
+    ````
+    :
+    :
+    Installation of chaincode blue-coin 1.0 TO peer1 of org1 is complete.
+    ````
+
+    ````
+    :
+    :
+    Installation of chaincode blue-coin 1.0 TO peer0 of org2 is complete.
+    ````
+
+    ````
+    :
+    :
+    Installation of chaincode blue-coin 1.0 TO peer1 of org2 is complete.
     ````
 
     The `install-chaincode.sh` script accepts three parameters:
@@ -237,7 +415,28 @@ Lastly, it starts the necessary docker containers to start a blockchain network.
 1. Check that there are no additional docker containers created yet.
 
     ````
-    chaincode> docker ps
+    chaincode> docker ps --format "table {{.Ports}}\t{{.Names}}"
+    ````
+
+    **Expected Output:**
+
+    ````
+    PORTS                                              NAMES
+                                                    cli1.org2
+                                                    cli0.org2
+                                                    cli1.org1
+                                                    cli0.org1
+    0.0.0.0:10051->7051/tcp, 0.0.0.0:10053->7053/tcp   peer1.org2.example.com
+    0.0.0.0:7051->7051/tcp, 0.0.0.0:7053->7053/tcp     peer0.org1.example.com
+    0.0.0.0:9051->7051/tcp, 0.0.0.0:9053->7053/tcp     peer0.org2.example.com
+    0.0.0.0:8051->7051/tcp, 0.0.0.0:8053->7053/tcp     peer1.org1.example.com
+    4369/tcp, 9100/tcp, 0.0.0.0:8984->5984/tcp         couchdb1.org2
+    0.0.0.0:7050->7050/tcp                             orderer.example.com
+    0.0.0.0:7054->7054/tcp                             ca1.example.com
+    0.0.0.0:8054->7054/tcp                             ca2.example.com
+    4369/tcp, 9100/tcp, 0.0.0.0:7984->5984/tcp         couchdb0.org2
+    4369/tcp, 9100/tcp, 0.0.0.0:5984->5984/tcp         couchdb0.org1
+    4369/tcp, 9100/tcp, 0.0.0.0:6984->5984/tcp         couchdb1.org1    
     ````
 
     The installation of the chaincode will eventually create later an additonal docker container for each peer installed with the chaincode.
@@ -251,6 +450,14 @@ Lastly, it starts the necessary docker containers to start a blockchain network.
 
     ````
     chaincode> ./instantiate-chaincode.sh 1 0 blue-coin 1.0
+    ````
+
+    **Expected Output:**
+
+    ````
+    :
+    :
+    Instantiation of chaincode blue-coin 1.0 TO blue-coin is complete.
     ````
 
     The `instantiate-chaincode.sh` script accepts two parameters:
@@ -273,13 +480,34 @@ Lastly, it starts the necessary docker containers to start a blockchain network.
 
     This will take several minutes.
 
-
 1.  Confirm that an additonal docker container for peer0.org1.example.com is created.
 
     ````
-    chaincode> docker ps
+    chaincode> docker ps --format "table {{.Ports}}\t{{.Names}}"
     ````
-    
+
+    **Expected Output:**
+
+    ````
+    PORTS                                              NAMES
+                                                    dev-peer0.org1.example.com-blue-coin-1.0
+                                                    cli1.org2
+                                                    cli0.org2
+                                                    cli1.org1
+                                                    cli0.org1
+    0.0.0.0:10051->7051/tcp, 0.0.0.0:10053->7053/tcp   peer1.org2.example.com
+    0.0.0.0:7051->7051/tcp, 0.0.0.0:7053->7053/tcp     peer0.org1.example.com
+    0.0.0.0:9051->7051/tcp, 0.0.0.0:9053->7053/tcp     peer0.org2.example.com
+    0.0.0.0:8051->7051/tcp, 0.0.0.0:8053->7053/tcp     peer1.org1.example.com
+    4369/tcp, 9100/tcp, 0.0.0.0:8984->5984/tcp         couchdb1.org2
+    0.0.0.0:7050->7050/tcp                             orderer.example.com
+    0.0.0.0:7054->7054/tcp                             ca1.example.com
+    0.0.0.0:8054->7054/tcp                             ca2.example.com
+    4369/tcp, 9100/tcp, 0.0.0.0:7984->5984/tcp         couchdb0.org2
+    4369/tcp, 9100/tcp, 0.0.0.0:5984->5984/tcp         couchdb0.org1
+    4369/tcp, 9100/tcp, 0.0.0.0:6984->5984/tcp         couchdb1.org1    
+    ````
+
     Notice that a docker container with the following name is created:
 
     *  dev-peer0.org1.example.com-blue-coin-1.0
@@ -304,6 +532,14 @@ Lastly, it starts the necessary docker containers to start a blockchain network.
       -c '{"function":"generateInitialCoin","Args":["Org1MSP"]}'
     ````
 
+    **Expected Output:**
+
+    ````
+    :
+    :
+    ... UTC [chaincodeCmd] chaincodeInvokeOrQuery -> INFO 001 Chaincode invoke successful. result: status:200 payload:"{\"status\":200,\"message\":\"Successfully generated blue coins\",\"payload\":{\"mspId\":\"Org1MSP\",\"amt\":500}}"    
+    ````
+
     This is an `invoke` command that invokes the `generateInitialCoin` function.
 
     This provides `500` blue coins to org1.  
@@ -316,9 +552,20 @@ Lastly, it starts the necessary docker containers to start a blockchain network.
     browser> http://localhost:5984/_utils/
     ````
 
+    **Expected Output:**
+
+    ````
+    _replicator
+    _users
+    mychannel_
+    mychannel_blue-coin
+    mychannel_lscc
+    ````
+
 1. In the web management of couchdb, click `mychannel_blue-coin` and click the entry with the key `Org1MSP`.
 
-    Notice that the following value is saved:
+
+    **Expected Output:**
 
     ````
     {
@@ -346,6 +593,12 @@ Lastly, it starts the necessary docker containers to start a blockchain network.
       -c '{"function":"getBalance","Args":["Org1MSP"]}'
     ````
 
+    **Expected Output:**
+
+    ````
+    {"status":200,"message":"Balance retrieved successfully","payload":{"amt":500,"mspId":"Org1MSP"}}
+    ````
+
     This is a `query` command that queries using the `getBalance` function.
 
     Notice that it shows the same blue coins shown in the previous steps.
@@ -358,14 +611,43 @@ Lastly, it starts the necessary docker containers to start a blockchain network.
       -c '{"function":"getBalance","Args":["Org1MSP"]}'
     ````
 
+    **Expected Output:**
+
+    ````
+    {"status":200,"message":"Balance retrieved successfully","payload":{"amt":500,"mspId":"Org1MSP"}}
+    ````
+
     Since this is the first time that an invoke or query command is used in the CLI of peer.org1.example.com, it will take some time before a response is shown.  This is due to a chaincode container for the said peer is being created.
 
 1.  Confirm that an additonal docker container for peer1.org1.example.com is created.
 
     ````
-    chaincode> docker ps
+    chaincode> docker ps --format "table {{.Ports}}\t{{.Names}}"
     ````
-    
+
+    **Expected Output:**
+
+    ````
+    PORTS                                              NAMES
+                                                    dev-peer1.org1.example.com-blue-coin-1.0
+                                                    dev-peer0.org1.example.com-blue-coin-1.0
+                                                    cli1.org2
+                                                    cli0.org2
+                                                    cli1.org1
+                                                    cli0.org1
+    0.0.0.0:10051->7051/tcp, 0.0.0.0:10053->7053/tcp   peer1.org2.example.com
+    0.0.0.0:7051->7051/tcp, 0.0.0.0:7053->7053/tcp     peer0.org1.example.com
+    0.0.0.0:9051->7051/tcp, 0.0.0.0:9053->7053/tcp     peer0.org2.example.com
+    0.0.0.0:8051->7051/tcp, 0.0.0.0:8053->7053/tcp     peer1.org1.example.com
+    4369/tcp, 9100/tcp, 0.0.0.0:8984->5984/tcp         couchdb1.org2
+    0.0.0.0:7050->7050/tcp                             orderer.example.com
+    0.0.0.0:7054->7054/tcp                             ca1.example.com
+    0.0.0.0:8054->7054/tcp                             ca2.example.com
+    4369/tcp, 9100/tcp, 0.0.0.0:7984->5984/tcp         couchdb0.org2
+    4369/tcp, 9100/tcp, 0.0.0.0:5984->5984/tcp         couchdb0.org1
+    4369/tcp, 9100/tcp, 0.0.0.0:6984->5984/tcp         couchdb1.org1    
+    ````
+
     Notice that a docker container with the following name is created:
 
     *  dev-peer1.org1.example.com-blue-coin-1.0
@@ -382,12 +664,47 @@ Lastly, it starts the necessary docker containers to start a blockchain network.
       -c '{"function":"getBalance","Args":["Org1MSP"]}'
     ````
 
+    **Expected Output:**
+
+    ````
+    {"status":200,"message":"Balance retrieved successfully","payload":{"amt":500,"mspId":"Org1MSP"}}
+    ````
+
+    ````
+    {"status":200,"message":"Balance retrieved successfully","payload":{"amt":500,"mspId":"Org1MSP"}}
+    ````
+
 1.  Confirm that additonal docker containers for peer0.org2.example.com and peer1.org2.example.com are created.
 
     ````
-    chaincode> docker ps
+    chaincode> docker ps --format "table {{.Ports}}\t{{.Names}}"
     ````
-    
+
+    **Expected Output:**
+
+    ````
+    PORTS                                              NAMES
+                                                    dev-peer1.org2.example.com-blue-coin-1.0
+                                                    dev-peer0.org2.example.com-blue-coin-1.0
+                                                    dev-peer1.org1.example.com-blue-coin-1.0
+                                                    dev-peer0.org1.example.com-blue-coin-1.0
+                                                    cli1.org2
+                                                    cli0.org2
+                                                    cli1.org1
+                                                    cli0.org1
+    0.0.0.0:10051->7051/tcp, 0.0.0.0:10053->7053/tcp   peer1.org2.example.com
+    0.0.0.0:7051->7051/tcp, 0.0.0.0:7053->7053/tcp     peer0.org1.example.com
+    0.0.0.0:9051->7051/tcp, 0.0.0.0:9053->7053/tcp     peer0.org2.example.com
+    0.0.0.0:8051->7051/tcp, 0.0.0.0:8053->7053/tcp     peer1.org1.example.com
+    4369/tcp, 9100/tcp, 0.0.0.0:8984->5984/tcp         couchdb1.org2
+    0.0.0.0:7050->7050/tcp                             orderer.example.com
+    0.0.0.0:7054->7054/tcp                             ca1.example.com
+    0.0.0.0:8054->7054/tcp                             ca2.example.com
+    4369/tcp, 9100/tcp, 0.0.0.0:7984->5984/tcp         couchdb0.org2
+    4369/tcp, 9100/tcp, 0.0.0.0:5984->5984/tcp         couchdb0.org1
+    4369/tcp, 9100/tcp, 0.0.0.0:6984->5984/tcp         couchdb1.org1
+    ````
+
     Notice that docker containers with the following names are created:
 
     *  dev-peer0.org2.example.com-blue-coin-1.0
@@ -402,6 +719,14 @@ Since clearing of blockchain setup, starting blockchain setup, and installing an
 
     ````
     chaincode> ./quick-setup.sh blue-coin-no-acl blue-coin 1.0
+    ````
+
+    **Expected Output:**
+
+    ````
+    :
+    :
+    Quick setup for chaincode blue-coin is complete.
     ````
 
     The `quick-setup.sh` script accepts three parameters:

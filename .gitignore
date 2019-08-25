@@ -64,6 +64,7 @@ wallet/org1
 wallet/org2
 wallet/org3
 network/docker-compose.yml
+network/docker-compose-org3.yml
 network/config
 network/crypto-config
 network/org3-artifacts

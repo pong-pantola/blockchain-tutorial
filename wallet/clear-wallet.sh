@@ -9,3 +9,5 @@
 set -e
 
 rm -r -f org*
+
+echo Wallet is cleared.

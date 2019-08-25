@@ -125,3 +125,4 @@ fi
     exit 1
   fi
 
+echo Artifacts, certificates, private keys, and docker-compose-org3.yml file are generated.
